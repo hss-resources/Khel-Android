@@ -19,6 +19,18 @@ export default function Home({navigation}) {
     dandh: false,
   });
 
+  const [data, setData] = React.useState(khel);
+  const [searchData, setSearchData] = React.useState(khel);
+  const [alphabetEnabled, setAlphabetEnabled] = React.useState(true);
+  const [categoryEnabled, setCategoryEnabled] = React.useState(false);
+  const [pursuit, setPursuit] = React.useState(false);
+  const [individual, setIndividual] = React.useState(false);
+  const [mandal, setMandal] = React.useState(false);
+  const [team, setTeam] = React.useState(false);
+  const [sit, setSit] = React.useState(false);
+  const [dandh, setDandh] = React.useState(false);
+
+
   function sortByProps(props) {
     const list = data.sort(
       function (a, b) {
@@ -34,6 +46,21 @@ export default function Home({navigation}) {
     setData(list);
   }
 
+  function updateSearch() {
+    const criteria = evaluateCriteria();
+    const list = data.filter(item => criteria.includes(item.category));
+    setSearchData(list);
+  }
+
+  function search(string) {
+    if (string == "") {
+      updateSearch();
+    } else {
+      updateSearch();
+      const array = searchData.filter(item => item.name == string);
+      setSearchData(array);
+    }
+  }
 
   return (
     <Layout level='3'>
@@ -41,16 +68,22 @@ export default function Home({navigation}) {
         label="Search"
         value={state.search}
         placeholder="Enter name here"
+        onChangeText={(str) => search(str)}
       />
       <ButtonGroup>
         <Button onPress={() => sortByProps("name")}>A to Z</Button>
         <Button onPress={() => sortByProps("category")}>By Category</Button>
       </ButtonGroup>
-
-
-      <FlatList
-        data={data}
-        renderItem={({item}) =>
+    <ScrollView>
+      <View>
+        <Text>Pursuit:</Text><Toggle checked={pursuit} onChange={() => {setPursuit(!pursuit); updateSearch()}}/>
+        <Text>Individual:</Text><Toggle checked={individual} onChange={() => {setIndividual(!individual); updateSearch()}}/>
+        <Text>Mandal:</Text><Toggle checked={mandal} onChange={() => {setMandal(!mandal); updateSearch()}}/>
+        <Text>Team:</Text><Toggle checked={team} onChange={() => {setTeam(!team); updateSearch()}}/>
+        <Text>Sitting Down:</Text><Toggle checked={sit} onChange={() => {setSit(!sit); updateSearch()}}/>
+        <Text>Dandh:</Text><Toggle checked={dandh} onChange={() => {setDandh(!dandh); updateSearch()}}/>
+      </View>
+      {searchData.map((item) => (
           <Card header={() =>
               <View>
                 <Text>{item.name}</Text>
@@ -67,9 +100,10 @@ export default function Home({navigation}) {
           }>
             <Text>{item.name}</Text>
           </Card>
-        }
-        keyExtractor={(item, index) => item.name}
-      />
+      ))}
+    </ScrollView>
+    <View></View>
+    <Text>End of view</Text>
   </Layout>
   );
 }
