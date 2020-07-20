@@ -8,16 +8,15 @@ import * as eva from "@eva-design/eva";
 import Home from "./screens/Home";
 import Menu from "./screens/Menu";
 
+import RootNavigator from "./navigation/KhelTabNavigator";
+
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <ApplicationProvider {...eva} theme={eva.light}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen name="Home" component={Home}></Stack.Screen>
-          <Stack.Screen name="Menu" component={Menu}></Stack.Screen>
-        </Stack.Navigator>
+        <RootNavigator />
       </NavigationContainer>
     </ApplicationProvider>
   );

@@ -1,12 +1,12 @@
 import React from "react";
-import { StyleSheet, View, FlatList } from "react-native";
+import { StyleSheet, View, FlatList, ScrollView } from "react-native";
 import { Button, Card, Layout, Text, ButtonGroup, Toggle, Input } from "@ui-kitten/components";
 
 import khel from "../assets/khel.json";
 
 export default function Home({navigation}) {
   const [state, setState] = React.useState({
-    data: json,
+    data: khel,
     search: "",
     searchData: [],
     alphabetEnabled: true,
@@ -18,48 +18,58 @@ export default function Home({navigation}) {
     sit: false,
     dandh: false,
   });
+
+  function sortByProps(props) {
+    const list = data.sort(
+      function (a, b) {
+        if (a[props] < b[props]) {
+          return -1;
+        } else if (a[props] > b[props]) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }
+    );
+    setData(list);
+  }
+
+
   return (
-    <Layout level="4">
+    <Layout level='3'>
       <Input
         label="Search"
         value={state.search}
         placeholder="Enter name here"
       />
       <ButtonGroup>
-        <Button>A to Z</Button>
-        <Button>By Category</Button>
+        <Button onPress={() => sortByProps("name")}>A to Z</Button>
+        <Button onPress={() => sortByProps("category")}>By Category</Button>
       </ButtonGroup>
-      <View>
-        <Text>Categories:</Text>
-        <Text>Pursuit:</Text><Toggle checked={state.pursuit} onChange={() => setState({pursuit: !state.pursuit})} />
-        <Text>Individual:</Text><Toggle checked={state.individual} onChange={() => setState({individual: !state.individual})} />
-        <Text>Mandal:</Text><Toggle checked={state.mandal} onChange={() => setState({mandal: !state.mandal})} />
-        <Text>Team:</Text><Toggle checked={state.team} onChange={() => setState({team: !state.team})} />
-        <Text>Sitting Down:</Text><Toggle checked={state.sit} onChange={() => setState({sit: !state.sit})} />
-        <Text>Dandh:</Text><Toggle checked={state.dandh} onChange={() => setState({dandh: !state.dandh})} />
-      </View>
+
 
       <FlatList
-        data={khel}
-        renderItem={({item, index}) => {
-          <Card style={styles.cardContainer} header={() => {
+        data={data}
+        renderItem={({item}) =>
+          <Card header={() =>
+              <View>
+                <Text>{item.name}</Text>
+              </View>
+          } footer={() =>
             <View>
-              <Text category="h6">{item.name}</Text>
-              <Text>{item.category}</Text>
-            </View>
-          }} footer={() => {
-            <View>
-              <Button>Add to List</Button>
-              <Button onPress={navigation.navigate("Menu", {
+              <Button onPress={() => addToList()}>Add to List</Button>
+              <Button onPress={() => navigation.navigate("Menu", {
                   item: item
-              })}>More info</Button>
+                })}>
+              More info
+              </Button>
             </View>
-          }}>
-            {item.description}
+          }>
+            <Text>{item.name}</Text>
           </Card>
-        }}
-        keyExtractor={({item, index}) => item.name}
+        }
+        keyExtractor={(item, index) => item.name}
       />
-    </Layout>
+  </Layout>
   );
 }
