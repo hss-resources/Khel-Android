@@ -1,35 +1,48 @@
 import React from "react";
-import { StyleSheet, View, FlatList, ScrollView } from "react-native";
+import { StyleSheet, View, FlatList, ScrollView, Modal } from "react-native";
 import { Button, Card, Layout, Text, ButtonGroup, Toggle, Input } from "@ui-kitten/components";
 
 import khel from "../assets/khel.json";
 
 export default function Home({navigation}) {
-  const [state, setState] = React.useState({
-    data: khel,
-    search: "",
-    searchData: [],
-    alphabetEnabled: true,
-    categoryEnabled: false,
-    pursuit: false,
-    individual: false,
-    mandal: false,
-    team: false,
-    sit: false,
-    dandh: false,
-  });
 
+  const [pursuit, setPursuit] = React.useState(true);
+  const [individual, setIndividual] = React.useState(true);
+  const [mandal, setMandal] = React.useState(true);
+  const [team, setTeam] = React.useState(true);
+  const [sit, setSit] = React.useState(true);
+  const [dand, setDand] = React.useState(true);
+  //
   const [data, setData] = React.useState(khel);
+  const [search, setSearch] = React.useState("");
   const [searchData, setSearchData] = React.useState(khel);
   const [alphabetEnabled, setAlphabetEnabled] = React.useState(true);
   const [categoryEnabled, setCategoryEnabled] = React.useState(false);
-  const [pursuit, setPursuit] = React.useState(false);
-  const [individual, setIndividual] = React.useState(false);
-  const [mandal, setMandal] = React.useState(false);
-  const [team, setTeam] = React.useState(false);
-  const [sit, setSit] = React.useState(false);
-  const [dandh, setDandh] = React.useState(false);
+  const [visible, setVisible] = React.useState(false);
 
+  function evaluateCriteria() {
+    const temp = [];
+    if (pursuit) {
+      temp.push("Pursuit");
+    }
+    if (individual) {
+      temp.push("Individual")
+    }
+    if (mandal) {
+      temp.push("Mandal")
+    }
+    if (team) {
+      temp.push("Team");
+    }
+    if (sit) {
+      temp.push("Sitting Down");
+    }
+    if (dand) {
+      temp.push("Dand")
+    }
+    console.log(temp)
+    return temp;
+  }
 
   function sortByProps(props) {
     const list = data.sort(
@@ -52,38 +65,61 @@ export default function Home({navigation}) {
     setSearchData(list);
   }
 
-  function search(string) {
-    if (string == "") {
+  function searchStr() {
+    if (search == "") {
       updateSearch();
     } else {
       updateSearch();
-      const array = searchData.filter(item => item.name == string);
+      const array = searchData.filter(item => item.name == search);
+      console.log(array);
       setSearchData(array);
     }
   }
 
+  async function displayList() {
+    var map = await AsyncStorage.getItem("store");
+    return map
+  }
+
+  async function addToList(item, list) {
+    list.khel.push(item);
+    var map = await AsyncStorage.getItem("store");
+    map.push(list);
+    await AsyncStorage.setItem("store", map);
+    return;
+  }
+
   return (
     <Layout level='3'>
-      <Input
-        label="Search"
-        value={state.search}
-        placeholder="Enter name here"
-        onChangeText={(str) => search(str)}
-      />
-      <ButtonGroup>
-        <Button onPress={() => sortByProps("name")}>A to Z</Button>
-        <Button onPress={() => sortByProps("category")}>By Category</Button>
-      </ButtonGroup>
-    <ScrollView>
+       <Input
+         label="Search"
+         value={search}
+         placeholder="Enter name here"
+         onChangeText={(str) => {setSearch(str); searchStr()}}
+        />
+       <ButtonGroup>
+         <Button onPress={() => sortByProps("name")}>A to Z</Button>
+         <Button onPress={() => sortByProps("category")}>By Category</Button>
+       </ButtonGroup>
+
       <View>
-        <Text>Pursuit:</Text><Toggle checked={pursuit} onChange={() => {setPursuit(!pursuit); updateSearch()}}/>
-        <Text>Individual:</Text><Toggle checked={individual} onChange={() => {setIndividual(!individual); updateSearch()}}/>
-        <Text>Mandal:</Text><Toggle checked={mandal} onChange={() => {setMandal(!mandal); updateSearch()}}/>
-        <Text>Team:</Text><Toggle checked={team} onChange={() => {setTeam(!team); updateSearch()}}/>
-        <Text>Sitting Down:</Text><Toggle checked={sit} onChange={() => {setSit(!sit); updateSearch()}}/>
-        <Text>Dandh:</Text><Toggle checked={dandh} onChange={() => {setDandh(!dandh); updateSearch()}}/>
+        <Toggle checked={!pursuit} onChange={(isChecked) => {setPursuit(!isChecked); updateSearch()}}/>
+        <Text>Individual:</Text><Toggle checked={!individual} onChange={(isChecked) => {setIndividual(!isChecked); updateSearch()}}/>
+        <Text>Mandal:</Text><Toggle checked={!mandal} onChange={(isChecked) => {setMandal(!isChecked); updateSearch()}}/>
+         <Text>Team:</Text><Toggle checked={!team} onChange={(isChecked) => {setTeam(!isChecked); updateSearch()}}/>
+        <Text>Sitting Down:</Text><Toggle checked={!sit} onChange={(isChecked) => {setSit(!isChecked); updateSearch()}}/>
+        <Text>Dand:</Text><Toggle checked={!dand} onChange={(isChecked) => {setDand(!isChecked); updateSearch()}}/>
       </View>
-      {searchData.map((item) => (
+    {/*  <View>
+    *  <Toggle checked={!pursuit} onChange={(isChecked) => {setPursuit(!isChecked); updateSearch()}}/>
+    *    <Text>Individual:</Text><Toggle checked={!individual} onChange={(isChecked) => {setIndividual(!isChecked); updateSearch()}}/>
+    *    <Text>Mandal:</Text><Toggle checked={!mandal} onChange={(isChecked) => {setMandal(!isChecked); updateSearch()}}/>
+    *     <Text>Team:</Text><Toggle checked={!team} onChange={(isChecked) => {setTeam(!isChecked); updateSearch()}}/>
+    *    <Text>Sitting Down:</Text><Toggle checked={!sit} onChange={(isChecked) => {setSit(!isChecked); updateSearch()}}/>
+    *    <Text>Dand:</Text><Toggle checked={!dand} onChange={(isChecked) => {setDand(!isChecked); updateSearch()}}/>
+      </View> */}
+     <ScrollView>
+       {searchData.map((item) => (
           <Card header={() =>
               <View>
                 <Text>{item.name}</Text>
@@ -102,8 +138,8 @@ export default function Home({navigation}) {
           </Card>
       ))}
     </ScrollView>
-    <View></View>
     <Text>End of view</Text>
+    <Modal></Modal>
   </Layout>
   );
 }
