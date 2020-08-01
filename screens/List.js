@@ -5,7 +5,7 @@ import { FlatList, View, AsyncStorage, ScrollView } from "react-native";
 
 export default function List({ navigation }) {
   const [data, setData] = React.useState([]);
-  getData();
+  () => getData();
 
 
   function removeList(item) {

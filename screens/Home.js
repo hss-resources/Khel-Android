@@ -6,13 +6,13 @@ import khel from "../assets/khel.json";
 
 export default function Home({navigation}) {
 
-  const [pursuit, setPursuit] = React.useState(true);
-  const [individual, setIndividual] = React.useState(true);
-  const [mandal, setMandal] = React.useState(true);
-  const [team, setTeam] = React.useState(true);
-  const [sit, setSit] = React.useState(true);
-  const [dand, setDand] = React.useState(true);
-  //
+  const [pursuit, setPursuit] = React.useState(false);
+  const [individual, setIndividual] = React.useState(false);
+  const [mandal, setMandal] = React.useState(false);
+  const [team, setTeam] = React.useState(false);
+  const [sit, setSit] = React.useState(false);
+  const [dand, setDand] = React.useState(false);
+
   const [data, setData] = React.useState(khel);
   const [search, setSearch] = React.useState("");
   const [searchData, setSearchData] = React.useState(khel);
@@ -21,27 +21,30 @@ export default function Home({navigation}) {
   const [visible, setVisible] = React.useState(false);
 
   function evaluateCriteria() {
+    const categories = ["Pursuit", "Individual", "Mandal", "Team", "Sitting Down", "Dand"];
     const temp = [];
-    if (pursuit) {
+    if (!pursuit) {
       temp.push("Pursuit");
     }
-    if (individual) {
+    if (!individual) {
       temp.push("Individual")
     }
-    if (mandal) {
+    if (!mandal) {
       temp.push("Mandal")
     }
-    if (team) {
+    if (!team) {
       temp.push("Team");
     }
-    if (sit) {
+    if (!sit) {
       temp.push("Sitting Down");
     }
-    if (dand) {
+    if (!dand) {
       temp.push("Dand")
     }
-    console.log(temp)
-    return temp;
+    console.log(temp);
+    const values = categories.filter(x => !temp.includes(x));
+    console.log(values)
+    return values;
   }
 
   function sortByProps(props) {
@@ -78,7 +81,7 @@ export default function Home({navigation}) {
 
   async function displayList() {
     var map = await AsyncStorage.getItem("store");
-    return map
+    return map;
   }
 
   async function addToList(item, list) {
@@ -103,12 +106,13 @@ export default function Home({navigation}) {
        </ButtonGroup>
 
       <View>
-        <Toggle checked={!pursuit} onChange={(isChecked) => {setPursuit(!isChecked); updateSearch()}}/>
-        <Text>Individual:</Text><Toggle checked={!individual} onChange={(isChecked) => {setIndividual(!isChecked); updateSearch()}}/>
-        <Text>Mandal:</Text><Toggle checked={!mandal} onChange={(isChecked) => {setMandal(!isChecked); updateSearch()}}/>
-         <Text>Team:</Text><Toggle checked={!team} onChange={(isChecked) => {setTeam(!isChecked); updateSearch()}}/>
-        <Text>Sitting Down:</Text><Toggle checked={!sit} onChange={(isChecked) => {setSit(!isChecked); updateSearch()}}/>
-        <Text>Dand:</Text><Toggle checked={!dand} onChange={(isChecked) => {setDand(!isChecked); updateSearch()}}/>
+        <Toggle
+          checked={pursuit}
+          onChange={(isChecked) => {
+            setPursuit(isChecked);
+            updateSearch()
+          }
+        }/>
       </View>
     {/*  <View>
     *  <Toggle checked={!pursuit} onChange={(isChecked) => {setPursuit(!isChecked); updateSearch()}}/>
@@ -138,8 +142,7 @@ export default function Home({navigation}) {
           </Card>
       ))}
     </ScrollView>
-    <Text>End of view</Text>
-    <Modal></Modal>
+
   </Layout>
   );
 }
