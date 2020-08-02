@@ -1,13 +1,17 @@
 import React from 'react';
 import { Provider as PaperProvider } from "react-native-paper";
+import { NavigationContainer } from "@react-navigation/native";
 
-import Home from "./screens/classes/Home";
+import RootNavigator from "./navigation/KhelTabNavigator";
+import Home from "./screens/classes/About"
 
 export default function App() {
 
   return (
     <PaperProvider>
-      <Home />
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
     </PaperProvider>
   )
 }

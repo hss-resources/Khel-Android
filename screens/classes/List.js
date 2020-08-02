@@ -32,7 +32,7 @@ export default class List extends React.Component {
           data={this.state.data}
           renderItem={({item, index}) => (
             <Card>
-              <Card.Title title={item.title} />
+              <Card.Title title={item.name} />
               <Card.Content>
               {item.khel.map((i, n) => (
                 <Text>{n+1} : {i.name}</Text>
