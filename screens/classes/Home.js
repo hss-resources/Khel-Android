@@ -14,6 +14,7 @@ export default class Home extends React.Component {
       searchData: khel,
       data: [],
       list: [],
+      editedList: [],
       item: null,
       checkboxes: [],
       visible: false,
@@ -29,8 +30,13 @@ export default class Home extends React.Component {
       isLoading: false,
       checkboxes: array,
       list: maps,
+      editedList: maps,
       data: khel
-    }, () => console.log("checkboxes", this.state.checkboxes));
+    });
+  }
+
+  async componentWillUnmount() {
+    await AsyncStorage.setItem("store", JSON.stringify(this.state.editedList));
   }
 
   evaluateCriteria() {
@@ -79,7 +85,6 @@ export default class Home extends React.Component {
     const criteria = this.evaluateCriteria();
     const list = this.state.data.filter(
       item => criteria.includes(item.category));
-    console.log(list);
     this.setState({
       searchData: list
     });
@@ -97,7 +102,7 @@ export default class Home extends React.Component {
     this.setState({
       checkboxes: array,
       visible: false
-    }, () => console.log("visible", this.state.visible))
+    });
   }
 
   searchStr() {
@@ -108,7 +113,7 @@ export default class Home extends React.Component {
       const array = this.state.searchData.filter(
         item => item.name == this.state.search
       );
-      console.log(array);
+
       this.setState({
         searchData: array
       });
@@ -119,14 +124,29 @@ export default class Home extends React.Component {
     var indexes = this.state.checkboxes.map(
       item => {
         if (item == true) {
-          return checkboxes.indexOf(item);
+          return this.state.checkboxes.indexOf(item);
         }
       }
     );
-    var map = indexes.map(
-      index => this.state.list[index]
-    );
-    console.log(indexes);
+    console.log("indexes", indexes)
+
+    var map = this.state.list.filter((item) => indexes.includes(this.state.list.indexOf(item)));
+
+    map.forEach(item => item.khel.push(this.state.item));
+
+    console.log("list", map);
+
+    this.setState({editedList: map, visible: false}, () => {
+      alert("Added!");
+    });
+
+
+    // var maps2 = maps.forEach((item) => {
+    //   console.log(item)
+    //   item.khel.push(this.state.item);
+    // } );
+
+    //
   }
 
   render() {
@@ -191,7 +211,7 @@ export default class Home extends React.Component {
                       </View>
                       <View>
                         {this.state.searchData.slice(0,10).map((item, index) => (
-                        <View>
+                        <View key={index}>
                           <Card>
                             <Card.Title title={item.name} />
                             <Card.Content>
@@ -228,7 +248,7 @@ export default class Home extends React.Component {
                               ))}
                             </Dialog.Content>
                             <Dialog.Actions>
-                              <Button mode="contained" icon="plus" onPress={() => this.openDialog(item)}>
+                              <Button mode="contained" icon="plus" onPress={() => this.addToList()}>
                                 Add to List
                               </Button>
                               <Button icon="information-outline" onPress={() => this.hideDialog()}>
