@@ -154,6 +154,79 @@ export default class Home extends React.Component {
       return;
   }
 
+  adjustStyles(i) {
+    var obj = {
+      borderRadius: 10,
+      padding: 2,
+      borderColor:"black",
+      alignItems: "center",
+      marginRight: 3
+
+    }
+    switch (i) {
+      case "Pursuit":
+      obj.backgroundColor = "red";
+      obj.color = "white";
+      break;
+      case "Individual":
+      obj.backgroundColor = "yellow";
+      obj.color = "black";
+      break;
+      case "Mandal":
+      obj.backgroundColor = "dodgerblue";
+      obj.color= "black";
+      break;
+      case "Team":
+      obj.backgroundColor = "lime";
+      obj.color = "black";
+      break;
+      case "Sitting down":
+      obj.backgroundColor = "darkorange";
+      break;
+      case "Dand":
+      obj.backgroundColor = "blueviolet";
+      obj.color="white";
+      break;
+      case "E-Khel":
+        obj.backgroundColor = "deeppink";
+        obj.color="white";
+        break;
+    }
+    return obj;
+  }
+
+  adjustText(i) {
+    var obj = {
+      fontSize: 10,
+      padding: 5
+
+    }
+    switch (i) {
+      case "Pursuit":
+      obj.color = "white";
+      break;
+      case "Individual":
+      obj.color = "black";
+      break;
+      case "Mandal":
+      obj.color= "black";
+      break;
+      case "Team":
+      obj.color = "black";
+      break;
+      case "Sitting down":
+      obj.color = "black";
+      break;
+      case "Dand":
+      obj.color="white";
+      break;
+      case "E-Khel":
+        obj.color="white";
+        break;
+    }
+    return obj;
+  }
+
   toggleView() {
       return (
         <View style={styles.container}>
@@ -236,6 +309,12 @@ export default class Home extends React.Component {
               <Card>
                 <Card.Title title={item.name} />
                 <Card.Content>
+                  <View style={{flexDirection: "row", flex: 1}}>
+                    <View style={this.adjustStyles(item.category)} key={index}><Text style={this.adjustText(item.category)}>{item.category}</Text></View>
+                  </View>
+                  <View style={styles.rowContainer}>
+                    <Text>Aim: {item.aim}</Text>
+                  </View>
                 </Card.Content>
                 <Card.Actions>
                   <Button mode="contained" icon="plus" onPress={() => this.openDialog(item)}>

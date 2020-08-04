@@ -32,8 +32,6 @@ export default class KhelInfo extends React.Component {
     });
   }
 
-
-
   openDialog() {
       this.setState({
         visible: true,
@@ -68,8 +66,10 @@ export default class KhelInfo extends React.Component {
 
         this.setState({editedList: map, visible: false}, () => {
           alert("Added!");
+          console.log(this.state.editedList);
         });
-        await AsyncStorage.setItem("store", this.state.editedList);
+        await AsyncStorage.setItem("store", JSON.stringify(this.state.editedList));
+
         return;
     }
 

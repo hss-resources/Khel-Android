@@ -44,13 +44,16 @@ export default class New extends React.Component {
       temp.push("Team");
     }
     if (this.state.sit) {
-      temp.push("Sitting Down");
+      temp.push("Sitting down");
     }
     if (this.state.dand) {
       temp.push("Dand")
     }
+    if (this.state.ekhel) {
+      temp.push("E-Khel")
+    }
     if (temp.length == 0) {
-      return ["Pursuit", "Individual", "Mandal", "Team"< "Sitting Down", "Dand"];
+      return ["Pursuit", "Individual", "Mandal", "Team", "Sitting down", "Dand", "E-Khel"];
     }
     return temp;
   }
