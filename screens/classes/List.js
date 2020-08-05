@@ -1,6 +1,6 @@
 import React from "react";
-import { Button, Card, Chip } from "react-native-paper";
-import { FlatList, View, AsyncStorage, ScrollView, Text } from "react-native";
+import { Button, Card, Chip, Surface } from "react-native-paper";
+import { FlatList, View, AsyncStorage, ScrollView, Text, Alert } from "react-native";
 
 import styles from "../../assets/styles/styles";
 
@@ -9,12 +9,18 @@ export default class List extends React.Component {
     super(props);
     this.state = {
       data: [],
+      refreshing: false,
     }
   }
 
   async componentDidMount() {
     var items = await AsyncStorage.getItem("store");
-    this.setState({data: JSON.parse(items)});
+    if (items == null) {
+      this.setState({data: []});
+    } else if (!(JSON.parse(items)).includes(null)) {
+      this.setState({data: JSON.parse(items)});
+    }
+    console.log(JSON.parse(items));
   }
 
 
@@ -30,7 +36,8 @@ export default class List extends React.Component {
       padding: 2,
       borderColor:"black",
       alignItems: "center",
-      marginRight: 3
+      marginRight: 3,
+      elevated: 1
 
     }
     switch (i) {
@@ -97,23 +104,47 @@ export default class List extends React.Component {
     return obj;
   }
 
+  async refreshControl() {
+    this.setState({refreshing: true});
+    var items = JSON.parse(await AsyncStorage.getItem("store"));
+    if (items == null) {
+      this.setState({data: []})
+    } else if (!items.includes(null)) {
+      this.setState({data: items});
+    }
+    this.setState({refreshing: false});
+  }
+
   addView = () => (
-    <View style={styles.container}>
-      <Button mode="outlined" icon="plus-outline" onPress={() => this.props.navigation.navigate("New")}>Generate New List</Button>
-    </View>
+  <View style={styles.newContainer}>
+    <Surface style={styles.surfaceContainer}>
+      <Button mode="outlined" icon="plus" onPress={() => this.props.navigation.navigate("New")}>Generate New List</Button>
+    </Surface>
+  </View>
+  );
+
+  emptyView = () => (
+    <Surface style={styles.surfaceContainer}>
+      <Text>You don't seem to have made any lists yet -</Text>
+      <Text>click on the button below to get started!</Text>
+    </Surface>
   );
 
   render() {
     return (
         <FlatList
+          refreshing={this.state.refreshing}
+          onRefresh={() => this.refreshControl()}
           ListHeaderComponent={this.addView}
+          ListEmptyComponent={this.emptyView}
           data={this.state.data}
           renderItem={({item, index}) => (
+          <View style={styles.cardContainer}>
             <Card>
               <Card.Title title={item.name} />
               <Card.Content>
               <View style={{flexDirection: "row", flex: 1}}>
-                {item.categories.map((i, index) => <View style={this.adjustStyles(i)} key={index}><Text style={this.adjustText(i)}>{i}</Text></View>)}
+                {item.categories.map((i, index) => <Surface style={this.adjustStyles(i)} key={index}><Text style={this.adjustText(i)}>{i}</Text></Surface>)}
               </View>
               <Text></Text>
               {item.khel.map((i, n) => (
@@ -134,6 +165,7 @@ export default class List extends React.Component {
                 <Button icon="information-outline">More Info</Button>
               </Card.Actions>
             </Card>
+          </View>
           )}
           keyExtractor={(item, index) => item.name}
         />

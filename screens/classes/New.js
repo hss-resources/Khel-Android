@@ -1,14 +1,15 @@
 import React from "react";
-import { Button, Layout, Card, Text, Switch, ButtonGroup, Divider, Input } from "@ui-kitten/components";
+import { Button, Layout, Card, Text, Switch, ButtonGroup, Divider, Input, Surface, TextInput, ToggleButton } from "react-native-paper";
 import { FlatList, View, AsyncStorage, ScrollView } from "react-native";
 import khel from "../../assets/khel.json";
+import styles from "../../assets/styles/styles"
 
 export default class New extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      khel_number: 0,
+      khel_number: 1,
       pursuit: false,
       individual: false,
       mandal: false,
@@ -21,13 +22,11 @@ export default class New extends React.Component {
   }
 
   async componentDidMount() {
-    var map = await AsyncStorage.getItem("store");
+    var map = JSON.parse(await AsyncStorage.getItem("store"));
+    console.log("store", map);
     this.setState({data: map});
   }
 
-  async componentWillUnmount() {
-    await AsyncStorage.setItem("store", JSON.stringify(this.state.data));
-  }
 
   evaluateCriteria() {
     const temp = [];
@@ -71,53 +70,74 @@ export default class New extends React.Component {
 
   async generateList(limit) {
     var criteria = this.evaluateCriteria();
-    let map = await AsyncStorage.getItem("store");
-    if (map == null) {
-      map = [];
+    console.log("map", this.state.data);
+    if (!this.state.data) {
+      var map = [];
+      console.log(map);
+    } else {
+      var map = this.state.data;
     }
     let array = khel.filter(item => criteria.includes(item.category));
-    array = shuffle(array);
+    array = this.shuffle(array);
     if (limit !== 0) {
       array = array.slice(0, limit);
     }
-    const store = await AsyncStorage.getItem("store");
+    console.log("array", array);
     const list = {
-      name: name,
+      name: this.state.name,
       khel: array,
       categories: criteria
     };
     map.push(list);
-    console.log(map);
-    this.setState({data: map});
+    console.log("new map", map);
     await AsyncStorage.setItem("store", JSON.stringify(map));
     this.props.navigation.goBack();
   }
 
   render() {
     return (
-      <ScrollView>
-        <View>
-          <Input placeholder="Enter List Name" value={this.state.name} onChangeText={(item) => this.setState({name: item})} />
-          <View>
-            <Text>{this.state.khel_number}</Text>
-            <ToggleButton.Row onValueChange={value => this.setState({khel_number: value})} value={value}>
-              <ToggleButton value={this.state.khel_number+1} icon="add"/>
-              <ToggleButton value={this.state.khel_number-1} icon="remove"/>
-            </ToggleButton.Row>
+      <ScrollView contentContainerStyle={{padding: 10}}>
+        <Surface style={styles.surfaceContainer}>
+          <TextInput mode="outlined" label="Enter Your List Name Here" value={this.state.name} onChangeText={(item) => this.setState({name: item})} />
+          <View style={styles.titleContainer}>
+            <Divider /><Text>Number of Khel</Text><Divider />
           </View>
-          <View>
-            <Divider /><Text category="label">Categories:</Text><Divider/>
+          <View style={styles.rowContainer}>
+            <Text style={styles.switchText}>{this.state.khel_number}</Text>
+            <View style={styles.rowButtonContainer}>
+              <Button icon="minus" mode="contained" onPress={() => this.setState({khel_number: this.state.khel_number - 1})}></Button>
+              <Button icon="plus" mode="contained" onPress={() => this.setState({khel_number: this.state.khel_number + 1})}></Button>
+            </View>
           </View>
+          <Divider />
           <View>
-            <Text category="s1">Pursuit</Text><Switch value={this.state.pursuit} onValueChange={(isChecked) => this.setState({pursuit: isChecked})}/>
-            <Text>Individual</Text><Switch value={this.state.individual} onValueChange={(isChecked) => this.setState({individual: isChecked})}/>
-            <Text>Mandal</Text><Switch value={this.state.mandal} onValueChange={(isChecked) => this.setState({mandal: isChecked})}/>
-            <Text>Team</Text><Switch value={this.state.team} onValueChange={(isChecked) => this.setState({team: isChecked})}/>
-            <Text>Sitting down</Text><Switch value={this.state.sit} onValueChange={(isChecked) => this.setState({sit: isChecked})}/>
-            <Text>Dandh</Text><Switch value={this.state.dand} onValueChange={(isChecked) => this.setState({dand: isChecked})}/>
+            <View style={styles.titleContainer}>
+              <Text>Type of Khel</Text>
+            </View>
+            <View style={styles.rowContainer}>
+              <Text style={styles.switchText}>Pursuit</Text><Switch value={this.state.pursuit} onValueChange={(isChecked) => this.setState({pursuit: isChecked})}/>
+            </View>
+            <View style={styles.rowContainer}>
+              <Text style={styles.switchText}>Individual</Text><Switch value={this.state.individual} onValueChange={(isChecked) => this.setState({individual: isChecked})}/>
+            </View>
+            <View style={styles.rowContainer}>
+              <Text style={styles.switchText}>Mandal</Text><Switch value={this.state.mandal} onValueChange={(isChecked) => this.setState({mandal: isChecked})}/>
+            </View>
+            <View style={styles.rowContainer}>
+              <Text style={styles.switchText}>Team</Text><Switch value={this.state.team} onValueChange={(isChecked) => this.setState({team: isChecked})}/>
+            </View>
+            <View style={styles.rowContainer}>
+              <Text style={styles.switchText}>Dandh</Text><Switch value={this.state.dand} onValueChange={(isChecked) => this.setState({dand: isChecked})}/>
+            </View>
+            <View style={styles.rowContainer}>
+              <Text style={styles.switchText}>Sitting down</Text><Switch value={this.state.sit} onValueChange={(isChecked) => this.setState({sit: isChecked})}/>
+            </View>
           </View>
-        </View>
-        <Button icon="plus" onPress={() => this.generateList(khel_number)}>Generate List</Button>
+        </Surface>
+        <View style={styles.spacer}></View>
+        <Surface style={styles.surfaceContainer}>
+        <Button icon="plus-outline" mode="contained" onPress={() => this.generateList(this.state.khel_number)}>Generate List</Button>
+        </Surface>
       </ScrollView>
     );
   }

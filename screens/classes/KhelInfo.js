@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View, FlatList, Share, Text, AsyncStorage, ScrollView } from "react-native";
-import { Button, Portal, Checkbox, Dialog } from "react-native-paper";
+import { Button, Portal, Checkbox, Dialog, Divider } from "react-native-paper";
 
 import khel from "../../assets/khel.json";
 
@@ -56,20 +56,18 @@ export default class KhelInfo extends React.Component {
           }
         );
 
-        var map = this.state.list.filter(
-          (item) => indexes.includes(this.state.list.indexOf(item))
+        var map = this.state.list.map(
+          (item) => {
+            if (indexes.includes(this.state.list.indexOf(item))) {
+              item.khel.push(this.state.item)
+            }
+          }
         );
 
-        map.forEach(
-          item => item.khel.push(this.state.object)
-        );
-
+        await AsyncStorage.setItem("store", JSON.stringify(map));
         this.setState({editedList: map, visible: false}, () => {
           alert("Added!");
-          console.log(this.state.editedList);
         });
-        await AsyncStorage.setItem("store", JSON.stringify(this.state.editedList));
-
         return;
     }
 
@@ -89,16 +87,22 @@ export default class KhelInfo extends React.Component {
     return (
       <ScrollView>
         <View>
-          <View>
-            <Text>Meaning:</Text>
-            <Text>{JSON.stringify(this.state.object.name)}</Text>
-
-            <Text>Aim:</Text>
-            <Text>{this.state.object.aim}</Text>
-
-            <Text>Description:</Text>
-            <Text>{this.state.object.description}</Text>
-          </View>
+          <Surface>
+            <View styl>
+              <Text>Meaning:</Text>
+              <Text>{JSON.stringify(this.state.object.name)}</Text>
+            </View>
+            <Divider />
+            <View>
+              <Text>Aim:</Text>
+              <Text>{this.state.object.aim}</Text>
+            </View>
+            <Divider />
+            <View>
+              <Text>Description:</Text>
+              <Text>{this.state.object.description}</Text>
+            </View>
+          </Surface>
         </View>
         <View></View>
         <View>

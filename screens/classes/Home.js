@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View, FlatList, ScrollView, Text, AsyncStorage } from "react-native";
-import { Button, Card, ToggleButton, Switch, TextInput, Dialog, Portal, Checkbox, ActivityIndicator, Colors } from "react-native-paper";
+import { Button, Card, ToggleButton, Switch, TextInput, Dialog, Portal, Checkbox, ActivityIndicator, Colors, Surface } from "react-native-paper";
 import styles from "../../assets/styles/styles";
 
 import khel from "../../assets/khel.json";
@@ -24,25 +24,31 @@ export default class Home extends React.Component {
       item: null,
       checkboxes: [],
       visible: false,
-      isLoading: true
+      isLoading: true,
+      refreshing: false,
     }
   }
 
   async componentDidMount() {
-    var maps = JSON.parse(await AsyncStorage.getItem("store"));
-    var array = [];
-    maps.forEach(item => array.push(false));
+    try {
+      var maps = JSON.parse(await AsyncStorage.getItem("store"));
+      console.log(maps);
+      var array = [];
+      if (maps.length || !maps.includes(null)) {
+        maps.forEach(item => array.push(false));
+      } else {
+        maps = false;
+      }
+    } catch (err) {
+      maps = false;
+    }
     this.setState({
       isLoading: false,
       checkboxes: array,
       list: maps,
       editedList: maps,
       data: khel
-    });
-  }
-
-  async componentWillUnmount() {
-    await AsyncStorage.setItem("store", JSON.stringify(this.state.editedList));
+    }, () => console.log("this.state.editedList", this.state.editedList));
   }
 
   evaluateCriteria() {
@@ -116,42 +122,39 @@ export default class Home extends React.Component {
 
   searchStr() {
       if (this.state.search == "") {
-        updateSearch();
+        this.updateSearch();
       } else {
-        updateSearch();
+        this.updateSearch();
         const array = this.state.searchData.filter(
-          item => item.name == this.state.search
+          (item) => item.name.includes(this.state.search)
         );
 
+        this.state.searchData.forEach(item => console.log(item.name));
         this.setState({
           searchData: array
         });
       }
     }
 
-  async addToList() {
+  isTrue = (item) => item == true;
 
+  async addToList() {
       var indexes = this.state.checkboxes.map(
-        item => {
-          if (item == true) {
-            return this.state.checkboxes.indexOf(item);
+        item => this.state.checkboxes.indexOf(this.isTrue)
+      );
+
+      var map = this.state.editedList.map(
+        (item) => {
+          if (indexes.includes(this.state.editedList.indexOf(item))) {
+            item.khel.push(this.state.item);
           }
         }
       );
 
-      var map = this.state.list.filter(
-        (item) => indexes.includes(this.state.list.indexOf(item))
-      );
-
-      map.forEach(
-        item => item.khel.push(this.state.item)
-      );
-
+      await AsyncStorage.setItem("store", JSON.stringify(map));
       this.setState({editedList: map, visible: false}, () => {
         alert("Added!");
       });
-      await AsyncStorage.setItem("store", this.state.editedList);
-      return;
   }
 
   adjustStyles(i) {
@@ -160,7 +163,8 @@ export default class Home extends React.Component {
       padding: 2,
       borderColor:"black",
       alignItems: "center",
-      marginRight: 3
+      marginRight: 3,
+      elevation: 1
 
     }
     switch (i) {
@@ -227,9 +231,26 @@ export default class Home extends React.Component {
     return obj;
   }
 
+  async refreshControl() {
+    this.setState({refreshing: true});
+    var data = await AsyncStorage.getItem("store");
+    this.setState({editedList: JSON.parse(data), refreshing: false});
+  }
+
   toggleView() {
       return (
-        <View style={styles.container}>
+      <View>
+        <View style={styles.spacer}></View>
+        <Surface style={styles.surfaceContainer}>
+          <Text>Filter your options here:</Text>
+          <TextInput
+            mode="outlined"
+            label="Search for khel"
+            placeholder="Enter search here"
+            value={this.state.search}
+            onChangeText={text => this.setState({search: text}, () => this.searchStr())}
+          />
+        <View style={styles.spacer}></View>
           <View style={styles.rowContainer}>
             <Text style={styles.switchText}>Pursuit</Text>
             <Switch
@@ -286,7 +307,9 @@ export default class Home extends React.Component {
                 this.setState({ekhel: isChecked}, () => this.updateSearch())
             }/>
           </View>
-        </View>
+        </Surface>
+        <View style={styles.spacer}></View>
+      </View>
       );
   }
 
@@ -303,14 +326,16 @@ export default class Home extends React.Component {
         <View>
           <FlatList
             data={this.state.searchData}
-            ListHeaderComponent={this.toggleView()}
+            ListHeaderComponent={() => this.toggleView()}
+            onRefresh={() => this.refreshControl()}
+            refreshing={this.state.refreshing}
             renderItem = {({item, index}) => (
-            <View key={item.name}>
+            <View key={index} style={styles.cardContainer}>
               <Card>
                 <Card.Title title={item.name} />
                 <Card.Content>
                   <View style={{flexDirection: "row", flex: 1}}>
-                    <View style={this.adjustStyles(item.category)} key={index}><Text style={this.adjustText(item.category)}>{item.category}</Text></View>
+                    <Surface style={this.adjustStyles(item.category)} key={index}><Text style={this.adjustText(item.category)}>{item.category}</Text></Surface>
                   </View>
                   <View style={styles.rowContainer}>
                     <Text>Aim: {item.aim}</Text>
@@ -333,9 +358,11 @@ export default class Home extends React.Component {
                 <Dialog visible={this.state.visible} onDismiss={() => this.hideDialog()}>
                 <Dialog.Title>Please choose the list:</Dialog.Title>
                 <Dialog.Content>
+                {this.state.list.length && (
+                <View>
                   {this.state.checkboxes.map((item, index) => (
                     <View>
-                      <Text>{this.state.list[index].name}</Text>
+                      <Text>{this.state.editedList[index].name}</Text>
                       <Checkbox.Android
                         status={this.state.checkboxes[index] ? "checked": "unchecked"}
                         onPress={() => {
@@ -346,6 +373,13 @@ export default class Home extends React.Component {
                       }/>
                     </View>
                   ))}
+                  </View>
+                )}
+                {!this.state.list && (
+                  <View>
+                    <Text>There exists no lists to add to!</Text>
+                  </View>
+                )}
                 </Dialog.Content>
                 <Dialog.Actions>
                   <Button mode="contained" icon="plus" onPress={() => this.addToList()}>
