@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    padding: 10,
   },
   newContainer: {
     height: '80%',
@@ -32,10 +33,14 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     padding: 10,
-    width: '95%',
-    borderRadius: 50,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'space-between',
+    elevation: 1
+  },
+  khelContainer: {
+    padding: 10,
+    borderRadius: 10,
     elevation: 1
   },
   spacer: {
@@ -51,6 +56,13 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: "row",
     flex: 1
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold'
+  },
+  cardTitle: {
+
   }
 });
 

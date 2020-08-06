@@ -1,6 +1,6 @@
 import React from "react";
-import { Card, Button, Surface, Divider } from "react-native-paper";
-import { View, Text, AsyncStorage } from "react-native";
+import { Card, Button, Surface, Text, Divider, Title, Subheader, Paragraph, Caption } from "react-native-paper";
+import { View,  AsyncStorage, FlatList } from "react-native";
 
 import styles from "../../assets/styles/styles";
 
@@ -13,7 +13,7 @@ export default class ListInfo extends React.Component {
   }
 
   async componentDidMount() {
-    const object = this.props.route.params.item;
+    const { object } = this.props.route.params;
     this.setState({data: object});
   }
 
@@ -24,9 +24,15 @@ export default class ListInfo extends React.Component {
   async remove(item) {
     const list = this.state.data.filter(x => x.name !== item.name);
     console.log(list);
-    await AsyncStorage.setItem("store", list);
+    await AsyncStorage.setItem("store", JSON.stringify(list));
     this.setState({data: list});
   }
+
+  headerComponent = () => (
+    <View>
+      <Text style={styles.title}>{this.state.data.name}</Text>
+    </View>
+  )
 
   render() {
     return (
@@ -56,6 +62,7 @@ export default class ListInfo extends React.Component {
                 </View>
               </Card.Actions>
             </Card>
+          </View>
           }
           keyExtractor={(item, index) => item.name}
         />

@@ -1,6 +1,6 @@
 import React from "react";
-import { StyleSheet, View, FlatList, ScrollView, Text, AsyncStorage } from "react-native";
-import { Button, Card, ToggleButton, Switch, TextInput, Dialog, Portal, Checkbox, ActivityIndicator, Colors, Surface } from "react-native-paper";
+import { StyleSheet, View, FlatList, ScrollView, AsyncStorage } from "react-native";
+import { Button, Card, ToggleButton, Switch, TextInput, Text, Dialog, Portal, Checkbox, ActivityIndicator, Colors, Surface, Title, Subheading } from "react-native-paper";
 import styles from "../../assets/styles/styles";
 
 import khel from "../../assets/khel.json";
@@ -30,14 +30,30 @@ export default class Home extends React.Component {
   }
 
   async componentDidMount() {
+    await AsyncStorage.removeItem("store");
+    this.getKhelLists();
+    this.getDataOnFocus = this.props.navigation.addListener('focus', () => {
+      this.getKhelLists();
+    });
+  }
+
+  async componentWillUnmount() {
+    this.getDataOnFocus();
+  }
+
+  async getKhelLists() {
     try {
-      var maps = JSON.parse(await AsyncStorage.getItem("store"));
-      console.log(maps);
-      var array = [];
-      if (maps.length || !maps.includes(null)) {
-        maps.forEach(item => array.push(false));
-      } else {
+      var maps = await AsyncStorage.getItem("store");
+      if (maps == null) {
         maps = false;
+      } else {
+        var array = [];
+        maps = JSON.parse(maps);
+        if (maps.length || !maps.includes(null)) {
+          maps.forEach(item => array.push(false));
+        } else {
+          maps = false;
+        }
       }
     } catch (err) {
       maps = false;
@@ -48,7 +64,7 @@ export default class Home extends React.Component {
       list: maps,
       editedList: maps,
       data: khel
-    }, () => console.log("this.state.editedList", this.state.editedList));
+    }, () => console.log("state updated \n",this.state.editedList));
   }
 
   evaluateCriteria() {
@@ -136,23 +152,36 @@ export default class Home extends React.Component {
       }
     }
 
-  isTrue = (item) => item == true;
-
   async addToList() {
-      var indexes = this.state.checkboxes.map(
-        item => this.state.checkboxes.indexOf(this.isTrue)
-      );
+      var indexes = [];
+
+      for (var i = 0; i < this.state.checkboxes.length; i++) {
+        if (this.state.checkboxes[i] == true) {
+          indexes.push(i);
+        }
+      }
+      console.log("indexes", indexes)
+
+      if (indexes.includes(-1)) {
+        return;
+      }
 
       var map = this.state.editedList.map(
         (item) => {
           if (indexes.includes(this.state.editedList.indexOf(item))) {
             item.khel.push(this.state.item);
+            if (!item.categories.includes(this.state.item.category)) {
+              item.categories.push(this.state.item.category);
+            }
           }
+          return item;
         }
       );
+      console.log("map", map);
 
       await AsyncStorage.setItem("store", JSON.stringify(map));
       this.setState({editedList: map, visible: false}, () => {
+        console.log("new editedList", this.state.editedList)
         alert("Added!");
       });
   }
@@ -233,15 +262,28 @@ export default class Home extends React.Component {
 
   async refreshControl() {
     this.setState({refreshing: true});
-    var data = await AsyncStorage.getItem("store");
-    this.setState({editedList: JSON.parse(data), refreshing: false});
+    var maps = JSON.parse(await AsyncStorage.getItem("store"));
+    var array = [];
+    if (maps.length || !maps.includes(null)) {
+      maps.forEach(item => array.push(false));
+    } else {
+      maps = false;
+    }
+    this.setState({
+      isLoading: false,
+      checkboxes: array,
+      list: maps,
+      editedList: maps,
+      data: khel,
+      refreshing: false
+    }, () => console.log("refreshed editedList", this.state.editedList));
   }
 
   toggleView() {
       return (
       <View>
         <View style={styles.spacer}></View>
-        <Surface style={styles.surfaceContainer}>
+        <Surface style={[styles.surfaceContainer, { padding: 20 }]}>
           <Text>Filter your options here:</Text>
           <TextInput
             mode="outlined"
@@ -252,7 +294,7 @@ export default class Home extends React.Component {
           />
         <View style={styles.spacer}></View>
           <View style={styles.rowContainer}>
-            <Text style={styles.switchText}>Pursuit</Text>
+            <Subheading style={styles.switchText}>Pursuit</Subheading>
             <Switch
               value={this.state.pursuit}
               onValueChange={(isChecked) =>
@@ -260,7 +302,7 @@ export default class Home extends React.Component {
             }/>
           </View>
           <View style={styles.rowContainer}>
-            <Text style={styles.switchText}>Individual</Text>
+            <Subheading style={styles.switchText}>Individual</Subheading>
             <Switch
               value={this.state.individual}
               onValueChange={(isChecked) =>
@@ -268,7 +310,7 @@ export default class Home extends React.Component {
             }/>
           </View>
           <View style={styles.rowContainer}>
-            <Text style={styles.switchText}>Mandal</Text>
+            <Subheading style={styles.switchText}>Mandal</Subheading>
             <Switch
               value={this.state.mandal}
               onValueChange={(isChecked) =>
@@ -276,7 +318,7 @@ export default class Home extends React.Component {
             }/>
           </View>
           <View style={styles.rowContainer}>
-            <Text style={styles.switchText}>Team</Text>
+            <Subheading style={styles.switchText}>Team</Subheading>
             <Switch
               value={this.state.team}
               onValueChange={(isChecked) =>
@@ -284,7 +326,7 @@ export default class Home extends React.Component {
             }/>
           </View>
           <View style={styles.rowContainer}>
-            <Text style={styles.switchText}>Sitting down</Text>
+            <Subheading style={styles.switchText}>Sitting down</Subheading>
             <Switch
               value={this.state.sit}
               onValueChange={(isChecked) =>
@@ -292,7 +334,7 @@ export default class Home extends React.Component {
             }/>
           </View>
           <View style={styles.rowContainer}>
-            <Text style={styles.switchText}>Dandh</Text>
+            <Subheading style={styles.switchText}>Dandh</Subheading>
             <Switch
               value={this.state.dand}
               onValueChange={(isChecked) =>
@@ -300,7 +342,7 @@ export default class Home extends React.Component {
             }/>
           </View>
           <View style={styles.rowContainer}>
-            <Text style={styles.switchText}>E-Khel</Text>
+            <Subheading style={styles.switchText}>E-Khel</Subheading>
             <Switch
               value={this.state.ekhel}
               onValueChange={(isChecked) =>

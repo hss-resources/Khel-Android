@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Layout, Card, Text, Switch, ButtonGroup, Divider, Input, Surface, TextInput, ToggleButton } from "react-native-paper";
+import { Button, Layout, Card, Text, Switch, ButtonGroup, Divider, Input, Surface, TextInput, ToggleButton, Title, Subheading, Paragraph, Caption} from "react-native-paper";
 import { FlatList, View, AsyncStorage, ScrollView } from "react-native";
 import khel from "../../assets/khel.json";
 import styles from "../../assets/styles/styles"
@@ -16,6 +16,7 @@ export default class New extends React.Component {
       team: false,
       sit: false,
       dand: false,
+      ekhel: false,
       name: "",
       data: [],
     }
@@ -112,25 +113,50 @@ export default class New extends React.Component {
           <Divider />
           <View>
             <View style={styles.titleContainer}>
-              <Text>Type of Khel</Text>
+              <Title>Type of Khel</Title>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Pursuit</Text><Switch value={this.state.pursuit} onValueChange={(isChecked) => this.setState({pursuit: isChecked})}/>
+              <Text style={styles.switchText}>Pursuit</Text>
+              <Switch
+                value={this.state.pursuit}
+                onValueChange={(isChecked) => this.setState({pursuit: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Individual</Text><Switch value={this.state.individual} onValueChange={(isChecked) => this.setState({individual: isChecked})}/>
+              <Text style={styles.switchText}>Individual</Text>
+              <Switch
+                value={this.state.individual}
+                onValueChange={(isChecked) => this.setState({individual: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Mandal</Text><Switch value={this.state.mandal} onValueChange={(isChecked) => this.setState({mandal: isChecked})}/>
+              <Text style={styles.switchText}>Mandal</Text>
+              <Switch
+                value={this.state.mandal}
+                onValueChange={(isChecked) => this.setState({mandal: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Team</Text><Switch value={this.state.team} onValueChange={(isChecked) => this.setState({team: isChecked})}/>
+              <Text style={styles.switchText}>Team</Text>
+              <Switch
+                value={this.state.team}
+                onValueChange={(isChecked) => this.setState({team: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Dandh</Text><Switch value={this.state.dand} onValueChange={(isChecked) => this.setState({dand: isChecked})}/>
+              <Text style={styles.switchText}>Dandh</Text>
+              <Switch
+                value={this.state.dand}
+                onValueChange={(isChecked) => this.setState({dand: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Sitting down</Text><Switch value={this.state.sit} onValueChange={(isChecked) => this.setState({sit: isChecked})}/>
+              <Text style={styles.switchText}>Sitting down</Text>
+              <Switch
+                value={this.state.sit}
+                onValueChange={(isChecked) => this.setState({sit: isChecked})}/>
+            </View>
+            <View style={styles.rowContainer}>
+              <Title style={styles.switchText}>E-Khel</Title>
+              <Switch
+                value={this.state.ekhel}
+                onValueChange={(isChecked) => this.setState({ekhel: isChecked})
+              }/>
             </View>
           </View>
         </Surface>

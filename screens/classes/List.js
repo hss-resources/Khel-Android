@@ -1,6 +1,6 @@
 import React from "react";
-import { Button, Card, Chip, Surface } from "react-native-paper";
-import { FlatList, View, AsyncStorage, ScrollView, Text, Alert } from "react-native";
+import { Button, Card, Chip, Surface, Text } from "react-native-paper";
+import { FlatList, View, AsyncStorage, ScrollView, Alert } from "react-native";
 
 import styles from "../../assets/styles/styles";
 
@@ -24,9 +24,10 @@ export default class List extends React.Component {
   }
 
 
-  removeList(item) {
+  async removeList(item) {
     console.log(item);
     var array = this.state.data.filter(value => value.name !== item.name);
+    await AsyncStorage.setItem("store", JSON.stringify(array));
     this.setState({data: array});
   }
 
@@ -38,32 +39,32 @@ export default class List extends React.Component {
       alignItems: "center",
       marginRight: 3,
       elevated: 1
+    };
 
-    }
     switch (i) {
       case "Pursuit":
-      obj.backgroundColor = "red";
-      obj.color = "white";
-      break;
+        obj.backgroundColor = "red";
+        obj.color = "white";
+        break;
       case "Individual":
-      obj.backgroundColor = "yellow";
-      obj.color = "black";
-      break;
+        obj.backgroundColor = "yellow";
+        obj.color = "black";
+        break;
       case "Mandal":
-      obj.backgroundColor = "dodgerblue";
-      obj.color= "black";
-      break;
+        obj.backgroundColor = "dodgerblue";
+        obj.color= "black";
+        break;
       case "Team":
-      obj.backgroundColor = "lime";
-      obj.color = "black";
-      break;
-      case "Sitting Down":
-      obj.backgroundColor = "darkorange";
-      break;
+        obj.backgroundColor = "lime";
+        obj.color = "black";
+        break;
+      case "Sitting down":
+        obj.backgroundColor = "darkorange";
+        break;
       case "Dand":
-      obj.backgroundColor = "blueviolet";
-      obj.color="white";
-      break;
+        obj.backgroundColor = "blueviolet";
+        obj.color="white";
+        break;
       case "E-Khel":
         obj.backgroundColor = "deeppink";
         obj.color="white";
@@ -76,8 +77,8 @@ export default class List extends React.Component {
     var obj = {
       fontSize: 10,
       padding: 5
+    };
 
-    }
     switch (i) {
       case "Pursuit":
       obj.color = "white";
@@ -91,7 +92,7 @@ export default class List extends React.Component {
       case "Team":
       obj.color = "black";
       break;
-      case "Sitting Down":
+      case "Sitting down":
       obj.color = "black";
       break;
       case "Dand":
@@ -162,7 +163,9 @@ export default class List extends React.Component {
                     { cancelable: 'false'}
                   )
                 }>Remove List</Button>
-                <Button icon="information-outline">More Info</Button>
+              <Button icon="information-outline" onPress={() => this.props.navigation.navigate("ListInfo", {
+                  item: item
+                })}>More Info</Button>
               </Card.Actions>
             </Card>
           </View>
