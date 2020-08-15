@@ -9,10 +9,24 @@ const styles = StyleSheet.create({
     padding: 10,
     marginLeft: 10,
     marginRight: 10,
+    flexWrap: "wrap"
+  },
+  modalContainer: {
+    height: 300,
+  },
+  pillContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "100%"
   },
   rowButtonContainer: {
     flexDirection: "row",
-    justifyContent: 'center'
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  newButtonContainer: {
+    flexDirection: "row",
+    justifyContent: 'space-between'
   },
   switchText: {
     alignItems: 'center',

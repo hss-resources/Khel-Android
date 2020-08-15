@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider as PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 
-import RootNavigator from "./navigation/KhelTabNavigator";
+import RootNavigator from "./navigation/ListStackNavigator";
 import Home from "./screens/classes/About"
 
 export default function App() {

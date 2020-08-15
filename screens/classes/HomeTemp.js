@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View, FlatList, ScrollView, AsyncStorage } from "react-native";
-import { Button, Card, ToggleButton, Switch, TextInput, Text, Dialog, Portal, Modal, Checkbox, ActivityIndicator, Colors, Surface, Title, Subheading, List, Caption, Divider } from "react-native-paper";
+import { Button, Card, ToggleButton, Switch, TextInput, Text, Dialog, Portal, Checkbox, ActivityIndicator, Colors, Surface, Title, Subheading } from "react-native-paper";
 import styles from "../../assets/styles/styles";
 
 import khel from "../../assets/khel.json";
@@ -18,20 +18,20 @@ export default class Home extends React.Component {
       dand: false,
       search: "",
       searchData: khel,
-      data: khel,
+      data: [],
       list: [],
       editedList: [],
-      khelToAdd: [],
+      item: null,
+      checkboxes: [],
       visible: false,
       isLoading: false,
       refreshing: false,
-      listExists: false
     }
   }
 
   async componentDidMount() {
     this.getDataOnFocus = this.props.navigation.addListener('focus', () => {
-      this.getKhelList();
+      this.getKhelLists();
     });
     console.log(this.state.isLoading);
   }
@@ -40,50 +40,33 @@ export default class Home extends React.Component {
     this.getDataOnFocus();
   }
 
-  getKhelList() {
-    if (this.props.route.params?.item) {
-      console.log(this.props.route.params.item)
-      const list = this.props.route.params.item;
-      console.log(list);
-      this.setState({
-        list: list,
-        listExists: true
-      })
-    } else {
-      this.setState({
-        list: [],
-        listExists: false,
-      })
-    }
+  async getKhelLists() {
+      this.setState({isLoading: true});
+      var maps = await AsyncStorage.getItem("store");
+      console.log("maps", maps);
+      if (maps == null) {
+        console.log("maps is null")
+        maps = false;
+      } else {
+        var array = [];
+        maps = JSON.parse(maps);
+        console.log("maps", maps);
+        if (maps.length > 0 && !maps.includes(null)) {
+          console.log("Success");
+          maps.forEach(item => array.push(false));
+        } else {
+          console.log("Fell into this pool here");
+          maps = [];
+        }
+      }
+    this.setState({
+      isLoading: false,
+      checkboxes: array,
+      list: maps,
+      editedList: maps,
+      data: khel
+    }, () => console.log(this.state.isLoading));
   }
-
-  // async getKhelLists() {
-  //     this.setState({isLoading: true});
-  //     var maps = await AsyncStorage.getItem("store");
-  //     console.log("maps", maps);
-  //     if (maps == null) {
-  //       console.log("maps is null")
-  //       maps = false;
-  //     } else {
-  //       var array = [];
-  //       maps = JSON.parse(maps);
-  //       console.log("maps", maps);
-  //       if (maps.length > 0 && !maps.includes(null)) {
-  //         console.log("Success");
-  //         maps.forEach(item => array.push(false));
-  //       } else {
-  //         console.log("Fell into this pool here");
-  //         maps = [];
-  //       }
-  //     }
-  //   this.setState({
-  //     isLoading: false,
-  //     checkboxes: array,
-  //     list: maps,
-  //     editedList: maps,
-  //     data: khel
-  //   }, () => console.log(this.state.isLoading));
-  // }
 
   evaluateCriteria() {
     const categories = ["Pursuit", "Individual", "Mandal", "Team", "Sitting down", "Dand", "E-Khel"];
@@ -173,51 +156,37 @@ export default class Home extends React.Component {
     }
 
   async addToList() {
-      // var indexes = [];
-      //
-      // for (var i = 0; i < this.state.checkboxes.length; i++) {
-      //   if (this.state.checkboxes[i] == true) {
-      //     indexes.push(i);
-      //   }
-      // }
-      // console.log("indexes", indexes)
-      //
-      // if (indexes.includes(-1)) {
-      //   return;
-      // }
-      //
-      // var map = this.state.editedList.map(
-      //   (item) => {
-      //     if (indexes.includes(this.state.editedList.indexOf(item))) {
-      //       item.khel.push(this.state.item);
-      //       if (!item.categories.includes(this.state.item.category)) {
-      //         item.categories.push(this.state.item.category);
-      //       }
-      //     }
-      //     return item;
-      //   }
-      // );
-      // console.log("map", map);
-      //
-      // await AsyncStorage.setItem("store", JSON.stringify(map));
-      // this.setState({editedList: map, visible: false}, () => {
-      //   console.log("new editedList", this.state.editedList)
-      //   alert("Added!");
-      // });
+      var indexes = [];
 
-      let list = this.state.list;
-      const amendedList = list.khel.concat(this.state.khelToAdd);
-      list.khel = amendedList;
-      this.setState({list: list, visible: false}, () => this.props.navigation.navigate("ListInfo", {
-        item: list
-      }))
+      for (var i = 0; i < this.state.checkboxes.length; i++) {
+        if (this.state.checkboxes[i] == true) {
+          indexes.push(i);
+        }
+      }
+      console.log("indexes", indexes)
 
-  }
+      if (indexes.includes(-1)) {
+        return;
+      }
 
-  removeList(item) {
-    const list = this.state.khelToAdd.filter(x => x.name !== item.name);
-    console.log(list);
-    this.setState({khelToAdd: list});
+      var map = this.state.editedList.map(
+        (item) => {
+          if (indexes.includes(this.state.editedList.indexOf(item))) {
+            item.khel.push(this.state.item);
+            if (!item.categories.includes(this.state.item.category)) {
+              item.categories.push(this.state.item.category);
+            }
+          }
+          return item;
+        }
+      );
+      console.log("map", map);
+
+      await AsyncStorage.setItem("store", JSON.stringify(map));
+      this.setState({editedList: map, visible: false}, () => {
+        console.log("new editedList", this.state.editedList)
+        alert("Added!");
+      });
   }
 
   adjustStyles(i) {
@@ -231,28 +200,28 @@ export default class Home extends React.Component {
     }
     switch (i) {
       case "Pursuit":
-        obj.backgroundColor = "red";
-        obj.color = "white";
-        break;
+      obj.backgroundColor = "red";
+      obj.color = "white";
+      break;
       case "Individual":
-        obj.backgroundColor = "yellow";
-        obj.color = "black";
-        break;
+      obj.backgroundColor = "yellow";
+      obj.color = "black";
+      break;
       case "Mandal":
-        obj.backgroundColor = "dodgerblue";
-        obj.color= "black";
-        break;
+      obj.backgroundColor = "dodgerblue";
+      obj.color= "black";
+      break;
       case "Team":
-        obj.backgroundColor = "lime";
-        obj.color = "black";
-        break;
+      obj.backgroundColor = "lime";
+      obj.color = "black";
+      break;
       case "Sitting down":
-        obj.backgroundColor = "darkorange";
-        break;
+      obj.backgroundColor = "darkorange";
+      break;
       case "Dand":
-        obj.backgroundColor = "blueviolet";
-        obj.color="white";
-        break;
+      obj.backgroundColor = "blueviolet";
+      obj.color="white";
+      break;
       case "E-Khel":
         obj.backgroundColor = "deeppink";
         obj.color="white";
@@ -269,23 +238,23 @@ export default class Home extends React.Component {
     }
     switch (i) {
       case "Pursuit":
-        obj.color = "white";
-        break;
+      obj.color = "white";
+      break;
       case "Individual":
-        obj.color = "black";
-        break;
+      obj.color = "black";
+      break;
       case "Mandal":
-        obj.color= "black";
-        break;
+      obj.color= "black";
+      break;
       case "Team":
-        obj.color = "black";
-        break;
+      obj.color = "black";
+      break;
       case "Sitting down":
-        obj.color = "black";
-        break;
+      obj.color = "black";
+      break;
       case "Dand":
-        obj.color="white";
-        break;
+      obj.color="white";
+      break;
       case "E-Khel":
         obj.color="white";
         break;
@@ -302,65 +271,14 @@ export default class Home extends React.Component {
   toggleView() {
       return (
       <View>
-        <Portal>
-        <Modal
-          visible={this.state.visible}
-          dismissable={true}
-          transparent={false}
-          onDismiss={() => this.setState({visible: false})}
-          onRequestClose={() => this.setState({visible: false})}
-        >
-        <View style={{backgroundColor: "white", padding: 10, height: 400}}>
-          <ScrollView>
-          {this.state.listExists && (
-          <View>
-            {this.state.list.khel.map((item, index) =>
-            <View style={{padding: 10}}>
-              <Title>{item.name}</Title>
-              <Caption>{item.category}</Caption>
-            </View>
-            )}
-            <View />
-            <Divider />
-            <View />
-            {this.state.khelToAdd.length > 0
-              ?
-              this.state.khelToAdd.map((item, index) => (
-                <View style={{padding: 10}}>
-                    <Title>{item.name}</Title>
-                    <View style={styles.rowContainer}>
-                      <Caption>{item.category}</Caption>
-                      <Button compact mode="contained" icon="minus" onPress={() => this.removeList(item)}></Button>
-                    </View>
-                </View>
-              ))
-              : (
-                <View>
-                  <Title>There are no items to add!</Title>
-                </View>
-            )}
-          </View>
-          )}
-          {!this.state.listExists && (
-            <View style={{justifyContent: "center"}}>
-              <Title>There are no items to add!</Title>
-            </View>
-          )}
-          <View style={styles.rowButtonContainer}>
-            <Button compact onPress={() => this.setState({visible: false})}>Close List</Button>
-            <Button compact mode="contained" disabled={!this.state.khelToAdd.length > 0} onPress={() => this.addToList()}>Add to List</Button>
-          </View>
-          </ScrollView>
+        <View style={styles.newContainer}>
+          <Surface style={styles.surfaceContainer}>
+            <Button mode="outlined" icon="plus" onPress={() => this.props.navigation.navigate("New")}>Generate New List</Button>
+          </Surface>
         </View>
-      </Modal>
-    </Portal>
+        <View />
+        <View style={styles.spacer}></View>
         <Surface style={[styles.surfaceContainer, { padding: 20 }]}>
-          <View style={{justifyContent: "center", padding: 10}}>
-            <Button mode="contained" onPress={() => this.props.navigation.navigate("New")}>Make New List </Button>
-            <View style={styles.spacer}></View>
-            <Button onPress={() => this.setState({visible: true})}>Open List</Button>
-          </View>
-          <View style={styles.spacer}></View>
           <Text>Filter your options here:</Text>
           <TextInput
             mode="outlined"
@@ -462,20 +380,10 @@ export default class Home extends React.Component {
                 </Card.Content>
                 <Card.Actions>
                   <View style={{flexDirection: "row"}}>
-                  <Button compact={true} mode="contained" icon="plus" onPress={() => {
-                      if (this.state.listExists) {
-                        let khelToAddList = this.state.khelToAdd;
-                        khelToAddList.push(item);
-                        this.setState({
-                          khelToAdd: khelToAddList
-                        }, () => alert("Added!"));
-                      } else {
-                        this.props.navigation.navigate("New");
-                      }
-                  }}>
+                  <Button mode="contained" icon="plus" onPress={() => this.openDialog(item)}>
                     Add to List
                   </Button>
-                  <Button compact={true} icon="information-outline" onPress={() => this.props.navigation.navigate("KhelInfo",
+                  <Button icon="information-outline" onPress={() => this.props.navigation.navigate("KhelInfo",
                     {
                       item: item
                     }
@@ -485,6 +393,45 @@ export default class Home extends React.Component {
                 </View>
                   </Card.Actions>
                 </Card>
+              <Portal>
+                <Dialog visible={this.state.visible} onDismiss={() => this.hideDialog()}>
+                <Dialog.Title>Please choose the list:</Dialog.Title>
+                <Dialog.Content>
+                {this.state.list.length && (
+                <View>
+                  {this.state.checkboxes.map((item, index) => (
+                    <View>
+                      <Text>{this.state.editedList[index].name}</Text>
+                      <Checkbox.Android
+                        status={this.state.checkboxes[index] ? "checked": "unchecked"}
+                        onPress={() => {
+                          let array = this.state.checkboxes;
+                          array[index] = !item;
+                          this.setState({checkboxes: array}, () => console.log("update", this.state.checkboxes));
+                        }
+                      }/>
+                    </View>
+                  ))}
+                  </View>
+                )}
+                {!this.state.list && (
+                  <View>
+                    <Text>There exists no lists to add to!</Text>
+                  </View>
+                )}
+                </Dialog.Content>
+                <Dialog.Actions>
+                <View style={{flexDirection: "row", flex: 1}}>
+                  <Button mode="contained" icon="plus" onPress={() => this.addToList()}>
+                    Add to List
+                  </Button>
+                  <Button icon="information-outline" onPress={() => this.hideDialog()}>
+                    Close
+                  </Button>
+                </View>
+                </Dialog.Actions>
+                </Dialog>
+              </Portal>
             </View>
             )}
             keyExtractor={(item, index) => item.name}

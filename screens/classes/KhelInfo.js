@@ -23,10 +23,10 @@ export default class KhelInfo extends React.Component {
     var maps = await AsyncStorage.getItem("store");
     var array = [];
     if (maps == null) {
-      maps = false;
+      maps = [];
     } else {
       maps = JSON.parse(maps);
-      if (maps.length && !maps.includes(null)) {
+      if (maps.length > 0 && !maps.includes(null)) {
         maps.forEach(item => array.push(false));
       } else {
         maps = false;
@@ -193,7 +193,7 @@ export default class KhelInfo extends React.Component {
       <ScrollView contentContainerStyle={{padding: 10}}>
           <Surface style={styles.khelContainer}>
             <Title>{this.state.object.name}</Title>
-            <View style={{ justifyContent: "space-between", flexDirection: "row"}}>
+            <View style={styles.pillContainer}>
               <Subheading>Category:</Subheading>
               <View style={this.adjustStyles(this.state.object.category)}><Text style={this.adjustText(this.state.object.category)}>{this.state.object.category}</Text></View>
             </View>

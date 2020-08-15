@@ -1,6 +1,6 @@
 import React from "react";
-import { Button, Card, Chip, Surface, Text } from "react-native-paper";
-import { FlatList, View, AsyncStorage, ScrollView, Alert } from "react-native";
+import { Button, Card, Chip, Surface, Title, Paragraph, Subheading, Caption, Divider } from "react-native-paper";
+import { FlatList, View, AsyncStorage, ScrollView, Alert, Text } from "react-native";
 
 import styles from "../../assets/styles/styles";
 
@@ -17,10 +17,16 @@ export default class List extends React.Component {
     var items = await AsyncStorage.getItem("store");
     if (items == null) {
       this.setState({data: []});
-    } else if (!(JSON.parse(items)).includes(null)) {
-      this.setState({data: JSON.parse(items)});
+    } else {
+      let newMaps = JSON.parse(items);
+      if (newMaps.length > 1 && !newMaps.includes(null)) {
+        this.setState({data: newMaps});
+      } else if (newMaps.length === 1 && newMaps[0] != null) {
+        this.setState({data: newMaps});
+      } else {
+        this.setState({data: []})
+      }
     }
-    console.log(JSON.parse(items));
   }
 
 
@@ -37,8 +43,7 @@ export default class List extends React.Component {
       padding: 2,
       borderColor:"black",
       alignItems: "center",
-      marginRight: 3,
-      elevated: 1
+      margin: 5,
     };
 
     switch (i) {
@@ -76,7 +81,8 @@ export default class List extends React.Component {
   adjustText(i) {
     var obj = {
       fontSize: 10,
-      padding: 5
+      padding: 5,
+      flexShrink: 1
     };
 
     switch (i) {
@@ -107,11 +113,12 @@ export default class List extends React.Component {
 
   async refreshControl() {
     this.setState({refreshing: true});
-    var items = JSON.parse(await AsyncStorage.getItem("store"));
+    var items = await AsyncStorage.getItem("store");
+    console.log("THIS IS ME ARRAY", JSON.parse(items));
     if (items == null) {
       this.setState({data: []})
-    } else if (!items.includes(null)) {
-      this.setState({data: items});
+    } else if (!JSON.parse(items).includes(null)) {
+      this.setState({data: JSON.parse(items)});
     }
     this.setState({refreshing: false});
   }
@@ -142,17 +149,28 @@ export default class List extends React.Component {
           renderItem={({item, index}) => (
           <View style={styles.cardContainer}>
             <Card>
-              <Card.Title title={item.name} />
+              <Card.Title title={<Title>{item.name}</Title>} />
               <Card.Content>
-              <View style={{flexDirection: "row", flex: 1}}>
+                <Divider />
+              <View style={styles.spacer}/>
+              <Caption>Categories: </Caption>
+              <View style={{flexDirection: "row", flexWrap: "wrap", flex: 1, alignItems: "center"}}>
                 {item.categories.map((i, index) => <Surface style={this.adjustStyles(i)} key={index}><Text style={this.adjustText(i)}>{i}</Text></Surface>)}
               </View>
-              <Text></Text>
+              <View style={styles.spacer}/>
+              <Divider />
+              <View style={styles.spacer}/>
+                <Subheading>Khel:</Subheading>
+              <View style={styles.spacer}/>
               {item.khel.map((i, n) => (
                 <Text>{n+1} : {i.name}</Text>
               ))}
+              <View style={styles.spacer}/>
+              <Divider />
+              <View style={styles.spacer} />
               </Card.Content>
               <Card.Actions>
+              <View style={styles.rowButtonContainer}>
                 <Button mode="contained" onPress={() => Alert.alert(
                     "Warning!",
                     "Are you sure you want to delete this list? Deleted lists cannot be recovered!",
@@ -163,9 +181,10 @@ export default class List extends React.Component {
                     { cancelable: 'false'}
                   )
                 }>Remove List</Button>
-              <Button icon="information-outline" onPress={() => this.props.navigation.navigate("ListInfo", {
-                  item: item
+              <Button icon="information-outline" mode="outlined" onPress={() => this.props.navigation.navigate("ListInfo", {
+                  item: JSON.stringify(item)
                 })}>More Info</Button>
+            </View>
               </Card.Actions>
             </Card>
           </View>

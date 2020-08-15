@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "khel-app-v2",
-    "slug": "khel-app-v2",
+    "name": "khel-app-android",
+    "slug": "khel-app-android",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,10 +17,16 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.hss.khelappandroid",
+      "buildNumber": "1.0.0",
       "supportsTablet": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "android": {
+      "package": "com.hss.khelappandroid",
+      "versionCode": 1
     }
   }
 }

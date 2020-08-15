@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Layout, Card, Text, Switch, ButtonGroup, Divider, Input, Surface, TextInput, ToggleButton, Title, Subheading, Paragraph, Caption} from "react-native-paper";
+import { Button, Layout, Card, Text, Switch, ButtonGroup, Divider, Input, Surface, TextInput, ToggleButton, Title, Subheading, Paragraph, Caption, HelperText} from "react-native-paper";
 import { FlatList, View, AsyncStorage, ScrollView } from "react-native";
 import khel from "../../assets/khel.json";
 import styles from "../../assets/styles/styles"
@@ -18,14 +18,26 @@ export default class New extends React.Component {
       dand: false,
       ekhel: false,
       name: "",
-      data: [],
+      data: null,
     }
   }
 
   async componentDidMount() {
-    var map = JSON.parse(await AsyncStorage.getItem("store"));
-    console.log("store", map);
-    this.setState({data: map});
+    // var map = await AsyncStorage.getItem("store");
+    // if (map == null) {
+    //   map = [];
+    // } else {
+    //   list = JSON.parse(map);
+    //   if (list.length > 1 && !list.includes(null)) {
+    //     map = list;
+    //   } else if (list.length == 1 && list[0] != null){
+    //     map = list;
+    //   } else {
+    //     map = null;
+    //   }
+    // }
+    // console.log("store", map);
+    // this.setState({data: map});
   }
 
 
@@ -71,43 +83,48 @@ export default class New extends React.Component {
 
   async generateList(limit) {
     var criteria = this.evaluateCriteria();
-    console.log("map", this.state.data);
-    if (!this.state.data) {
-      var map = [];
-      console.log(map);
-    } else {
-      var map = this.state.data;
-    }
+    // console.log("map", this.state.data);
+    // if (this.state.data == null) {
+    //   var map = [];
+    //   console.log(map);
+    // } else {
+    //   var map = this.state.data;
+    // }
     let array = khel.filter(item => criteria.includes(item.category));
     array = this.shuffle(array);
-    if (limit !== 0) {
+    if (limit != 0) {
       array = array.slice(0, limit);
     }
-    console.log("array", array);
+    console.log("array", criteria);
     const list = {
       name: this.state.name,
       khel: array,
       categories: criteria
     };
-    map.push(list);
-    console.log("new map", map);
-    await AsyncStorage.setItem("store", JSON.stringify(map));
-    this.props.navigation.goBack();
+    // map.push(list);
+    this.props.navigation.navigate("ListInfo", {
+      item: list
+    });
+  }
+
+  checkErrors() {
+    return this.state.name == "";
   }
 
   render() {
     return (
       <ScrollView contentContainerStyle={{padding: 10}}>
         <Surface style={styles.surfaceContainer}>
-          <TextInput mode="outlined" label="Enter Your List Name Here" value={this.state.name} onChangeText={(item) => this.setState({name: item})} />
+          <TextInput mode="outlined" label="Enter Your List Name Here" value={this.state.name} onChangeText={(item) => this.setState({name: item})} error={this.checkErrors()}/>
+          <HelperText type="error" visible={this.checkErrors()}>All lists require a name!</HelperText>
           <View style={styles.titleContainer}>
-            <Divider /><Text>Number of Khel</Text><Divider />
+            <Divider /><Title>Number of Khel</Title><Divider />
           </View>
           <View style={styles.rowContainer}>
             <Text style={styles.switchText}>{this.state.khel_number}</Text>
-            <View style={styles.rowButtonContainer}>
-              <Button icon="minus" mode="contained" onPress={() => this.setState({khel_number: this.state.khel_number - 1})}></Button>
-              <Button icon="plus" mode="contained" onPress={() => this.setState({khel_number: this.state.khel_number + 1})}></Button>
+            <View style={styles.newButtonContainer}>
+              <Button compact icon="minus" mode="contained" disabled={this.state.khel_number <= 1} onPress={() => this.setState({khel_number: this.state.khel_number - 1})}></Button>
+              <Button compact icon="plus" mode="contained" disabled={this.state.khel_number >= 18} onPress={() => this.setState({khel_number: this.state.khel_number + 1})}></Button>
             </View>
           </View>
           <Divider />
@@ -116,52 +133,51 @@ export default class New extends React.Component {
               <Title>Type of Khel</Title>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Pursuit</Text>
+              <Subheading style={styles.switchText}>Pursuit</Subheading>
               <Switch
                 value={this.state.pursuit}
                 onValueChange={(isChecked) => this.setState({pursuit: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Individual</Text>
+              <Subheading style={styles.switchText}>Individual</Subheading>
               <Switch
                 value={this.state.individual}
                 onValueChange={(isChecked) => this.setState({individual: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Mandal</Text>
+              <Subheading style={styles.switchText}>Mandal</Subheading>
               <Switch
                 value={this.state.mandal}
                 onValueChange={(isChecked) => this.setState({mandal: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Team</Text>
+              <Subheading style={styles.switchText}>Team</Subheading>
               <Switch
                 value={this.state.team}
                 onValueChange={(isChecked) => this.setState({team: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Dandh</Text>
+              <Subheading style={styles.switchText}>Dandh</Subheading>
               <Switch
                 value={this.state.dand}
                 onValueChange={(isChecked) => this.setState({dand: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Text style={styles.switchText}>Sitting down</Text>
+              <Subheading style={styles.switchText}>Sitting down</Subheading>
               <Switch
                 value={this.state.sit}
                 onValueChange={(isChecked) => this.setState({sit: isChecked})}/>
             </View>
             <View style={styles.rowContainer}>
-              <Title style={styles.switchText}>E-Khel</Title>
+              <Subheading style={styles.switchText}>E-Khel</Subheading>
               <Switch
                 value={this.state.ekhel}
                 onValueChange={(isChecked) => this.setState({ekhel: isChecked})
               }/>
             </View>
           </View>
-        </Surface>
-        <View style={styles.spacer}></View>
-        <Surface style={styles.surfaceContainer}>
+        <View style={styles.spacer} />
+        <View style={styles.spacer} />
         <Button icon="plus-outline" mode="contained" onPress={() => this.generateList(this.state.khel_number)}>Generate List</Button>
         </Surface>
       </ScrollView>

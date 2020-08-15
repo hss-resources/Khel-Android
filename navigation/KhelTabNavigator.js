@@ -2,7 +2,6 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import HomeNavigator from "./KhelStackNavigator";
 import ListNavigator from "./ListStackNavigator";
 import About from "../screens/classes/About";
 
@@ -29,7 +28,6 @@ export default function KhelTabNavigator() {
         inactiveTintColor: 'gray',
       }}
     >
-      <Tab.Screen name="Home" component={HomeNavigator}/>
       <Tab.Screen name="List" component={ListNavigator}/>
       <Tab.Screen name="About" component={About}/>
     </Tab.Navigator>
