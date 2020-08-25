@@ -1,6 +1,6 @@
 import React from "react";
-import { Card, Button, Surface, Text, Divider, Title, Subheading, Paragraph, Caption, Headline } from "react-native-paper";
-import { View,  AsyncStorage, FlatList, Share } from "react-native";
+import { Card, Button, Surface, Divider, Title, Subheading, Paragraph, Caption, Headline } from "react-native-paper";
+import { View,  AsyncStorage, FlatList, Share, Text } from "react-native";
 
 import styles from "../../assets/styles/styles";
 
@@ -20,14 +20,16 @@ export default class ListInfo extends React.Component {
   }
 
 
-  async remove(item) {
-    const list = this.state.data.filter(x => x.name !== item.name);
+  remove(item) {
+    const list = this.state.data.khel.filter(x => x.name != item.name);
     if (list.findIndex(i => i.category == item.category) == -1) {
       let categories = list.categories.filter(i => i != item.category);
       list.categories = categories;
     }
     console.log(list);
-    this.setState({data: list});
+    const editedData = this.state.data;
+    editedData.khel = list;
+    this.setState({data: editedData});
   }
 
 
@@ -119,7 +121,9 @@ export default class ListInfo extends React.Component {
         <Caption>Categories:</Caption>
         <View style={styles.pillContainer}>
           {this.props.route.params.item.categories.map(item =>
-            <View style={this.adjustStyles(item)}><Text style={this.adjustText(item)}>{item}</Text></View>
+            <View style={this.adjustStyles(item)}>
+              <Text style={this.adjustText(item)}>{item}</Text>
+            </View>
           )}
         </View>
       </View>
@@ -170,7 +174,7 @@ async onShare() {
               <Card.Actions>
                 <View style={styles.rowButtonContainer}>
                   <Button onPress={() => this.remove(item)}>Remove Item</Button>
-                  <Button onPress={() => this.props.navigation.navigate("Menu", {
+                  <Button onPress={() => this.props.navigation.navigate("KhelInfo", {
                       item: item
                     })}>
                   More info

@@ -20,23 +20,20 @@ export default class KhelInfo extends React.Component {
 
   async componentDidMount() {
     const { item } = this.props.route.params;
-    var maps = await AsyncStorage.getItem("store");
-    var array = [];
-    if (maps == null) {
-      maps = [];
-    } else {
-      maps = JSON.parse(maps);
-      if (maps.length > 0 && !maps.includes(null)) {
-        maps.forEach(item => array.push(false));
-      } else {
-        maps = false;
-      }
-    }
+    // var maps = await AsyncStorage.getItem("store");
+    // var array = [];
+    // if (maps == null) {
+    //   maps = [];
+    // } else {
+    //   maps = JSON.parse(maps);
+    //   if (maps.length > 0 && !maps.includes(null)) {
+    //     maps.forEach(item => array.push(false));
+    //   } else {
+    //     maps = false;
+    //   }
+    // }
     this.setState({
       isLoading: false,
-      checkboxes: array,
-      list: maps,
-      editedList: maps,
       data: khel,
       object: item,
     });
@@ -103,9 +100,10 @@ export default class KhelInfo extends React.Component {
     }
 
   async onShare() {
+    var msg = this.state.object.name + ` (${this.state.object.category})\n\n` + "Description: \n" + this.state.object.description;
     try {
       const result = await Share.share({
-        message: object
+        message: msg
       });
       return;
     } catch (error) {
@@ -120,8 +118,8 @@ export default class KhelInfo extends React.Component {
       padding: 2,
       borderColor:"black",
       alignItems: "center",
-      marginRight: 3,
-      elevation: 1
+      elevation: 1,
+      marginLeft: 10
 
     }
     switch (i) {
@@ -193,27 +191,27 @@ export default class KhelInfo extends React.Component {
       <ScrollView contentContainerStyle={{padding: 10}}>
           <Surface style={styles.khelContainer}>
             <Title>{this.state.object.name}</Title>
+            <View style={styles.spacer} />
+            <Divider />
+            <View style={styles.spacer} />
             <View style={styles.pillContainer}>
               <Subheading>Category:</Subheading>
-              <View style={this.adjustStyles(this.state.object.category)}><Text style={this.adjustText(this.state.object.category)}>{this.state.object.category}</Text></View>
+              <Surface style={this.adjustStyles(this.state.object.category)}><Text style={this.adjustText(this.state.object.category)}>{this.state.object.category}</Text></Surface>
             </View>
             <View style={styles.spacer}/>
               <Divider />
             <View style={styles.spacer}/>
             <View style={styles.cardText}>
-              <Caption>Aim:</Caption>
+              <Caption style={{fontSize: 15, marginBottom: 10}}>Aim:</Caption>
               <Paragraph>{this.state.object.aim}</Paragraph>
             </View>
             <View style={styles.spacer}/>
               <Divider />
             <View style={styles.spacer}/>
             <View style={styles.cardText}>
-              <Caption>Description:</Caption>
+              <Caption style={{fontSize: 15, marginBottom: 10}}>Description:</Caption>
               <Paragraph>{this.state.object.description}</Paragraph>
             </View>
-            <View style={styles.spacer}/>
-            <Divider />
-            <View style={styles.spacer} />
           </Surface>
 
         <View style={styles.spacer}></View>
@@ -255,7 +253,6 @@ export default class KhelInfo extends React.Component {
           </Dialog>
         </Portal>
         <View>
-          <Button onPress={() => this.openDialog()}> Add to List </Button>
           <Button onPress={() => this.onShare()}> Share khel info </Button>
           <Button> Spotted something wrong? </Button>
         </View>

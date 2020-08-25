@@ -33,7 +33,6 @@ export default class Home extends React.Component {
     this.getDataOnFocus = this.props.navigation.addListener('focus', () => {
       this.getKhelList();
     });
-    console.log(this.state.isLoading);
   }
 
   async componentWillUnmount() {
@@ -42,9 +41,7 @@ export default class Home extends React.Component {
 
   getKhelList() {
     if (this.props.route.params?.item) {
-      console.log(this.props.route.params.item)
       const list = this.props.route.params.item;
-      console.log(list);
       this.setState({
         list: list,
         listExists: true
@@ -155,9 +152,8 @@ export default class Home extends React.Component {
     }
 
   searchStr() {
-    console.log("search", this.state.search);
       if (this.state.search == "") {
-        this.setState({searchData: data})
+        this.setState({searchData: this.state.data})
         this.updateSearch();
       } else {
         this.updateSearch();
@@ -295,142 +291,10 @@ export default class Home extends React.Component {
 
   async refreshControl() {
     this.setState({refreshing: true});
-    this.getKhelLists();
+    this.getKhelList();
     this.setState({refreshing: false});
   }
 
-  toggleView() {
-      return (
-      <View>
-        <Portal>
-        <Modal
-          visible={this.state.visible}
-          dismissable={true}
-          transparent={false}
-          onDismiss={() => this.setState({visible: false})}
-          onRequestClose={() => this.setState({visible: false})}
-        >
-        <View style={{backgroundColor: "white", padding: 10, height: 400}}>
-          <ScrollView>
-          {this.state.listExists && (
-          <View>
-            {this.state.list.khel.map((item, index) =>
-            <View style={{padding: 10}}>
-              <Title>{item.name}</Title>
-              <Caption>{item.category}</Caption>
-            </View>
-            )}
-            <View />
-            <Divider />
-            <View />
-            {this.state.khelToAdd.length > 0
-              ?
-              this.state.khelToAdd.map((item, index) => (
-                <View style={{padding: 10}}>
-                    <Title>{item.name}</Title>
-                    <View style={styles.rowContainer}>
-                      <Caption>{item.category}</Caption>
-                      <Button compact mode="contained" icon="minus" onPress={() => this.removeList(item)}></Button>
-                    </View>
-                </View>
-              ))
-              : (
-                <View>
-                  <Title>There are no items to add!</Title>
-                </View>
-            )}
-          </View>
-          )}
-          {!this.state.listExists && (
-            <View style={{justifyContent: "center"}}>
-              <Title>There are no items to add!</Title>
-            </View>
-          )}
-          <View style={styles.rowButtonContainer}>
-            <Button compact onPress={() => this.setState({visible: false})}>Close List</Button>
-            <Button compact mode="contained" disabled={!this.state.khelToAdd.length > 0} onPress={() => this.addToList()}>Add to List</Button>
-          </View>
-          </ScrollView>
-        </View>
-      </Modal>
-    </Portal>
-        <Surface style={[styles.surfaceContainer, { padding: 20 }]}>
-          <View style={{justifyContent: "center", padding: 10}}>
-            <Button mode="contained" onPress={() => this.props.navigation.navigate("New")}>Make New List </Button>
-            <View style={styles.spacer}></View>
-            <Button onPress={() => this.setState({visible: true})}>Open List</Button>
-          </View>
-          <View style={styles.spacer}></View>
-          <Text>Filter your options here:</Text>
-          <TextInput
-            mode="outlined"
-            label="Search for khel"
-            placeholder="Enter search here"
-            value={this.state.search}
-            onChangeText={text => this.setState({search: text}, () => this.searchStr())}
-          />
-        <View style={styles.spacer}></View>
-          <View style={styles.rowContainer}>
-            <Subheading style={styles.switchText}>Pursuit</Subheading>
-            <Switch
-              value={this.state.pursuit}
-              onValueChange={(isChecked) =>
-                this.setState({pursuit: isChecked}, () => this.updateSearch())
-            }/>
-          </View>
-          <View style={styles.rowContainer}>
-            <Subheading style={styles.switchText}>Individual</Subheading>
-            <Switch
-              value={this.state.individual}
-              onValueChange={(isChecked) =>
-                this.setState({individual: isChecked}, () => this.updateSearch())
-            }/>
-          </View>
-          <View style={styles.rowContainer}>
-            <Subheading style={styles.switchText}>Mandal</Subheading>
-            <Switch
-              value={this.state.mandal}
-              onValueChange={(isChecked) =>
-                this.setState({mandal: isChecked}, () => this.updateSearch())
-            }/>
-          </View>
-          <View style={styles.rowContainer}>
-            <Subheading style={styles.switchText}>Team</Subheading>
-            <Switch
-              value={this.state.team}
-              onValueChange={(isChecked) =>
-                this.setState({team: isChecked}, () => this.updateSearch())
-            }/>
-          </View>
-          <View style={styles.rowContainer}>
-            <Subheading style={styles.switchText}>Sitting down</Subheading>
-            <Switch
-              value={this.state.sit}
-              onValueChange={(isChecked) =>
-                this.setState({sit: isChecked}, () => this.updateSearch())
-            }/>
-          </View>
-          <View style={styles.rowContainer}>
-            <Subheading style={styles.switchText}>Dandh</Subheading>
-            <Switch
-              value={this.state.dand}
-              onValueChange={(isChecked) =>
-                this.setState({dand: isChecked}, () => this.updateSearch())
-            }/>
-          </View>
-          <View style={styles.rowContainer}>
-            <Subheading style={styles.switchText}>E-Khel</Subheading>
-            <Switch
-              value={this.state.ekhel}
-              onValueChange={(isChecked) =>
-                this.setState({ekhel: isChecked}, () => this.updateSearch())
-            }/>
-          </View>
-        </Surface>
-        <View style={styles.spacer}></View>
-      </View>
-      );
-  }
 
   render() {
     if (this.state.isLoading) {
@@ -445,7 +309,136 @@ export default class Home extends React.Component {
         <View>
           <FlatList
             data={this.state.searchData}
-            ListHeaderComponent={() => this.toggleView()}
+            ListHeaderComponent={
+              <View>
+                    <Portal>
+                    <Modal
+                      visible={this.state.visible}
+                      dismissable={true}
+                      transparent={false}
+                      onDismiss={() => this.setState({visible: false})}
+                      onRequestClose={() => this.setState({visible: false})}
+                    >
+                    <View style={{backgroundColor: "white", padding: 10, height: 400}}>
+                      <ScrollView>
+                      {this.state.listExists && (
+                      <View>
+                        {this.state.list.khel.map((item, index) =>
+                        <View style={{padding: 10}}>
+                          <Title>{item.name}</Title>
+                          <Caption>{item.category}</Caption>
+                        </View>
+                        )}
+                        <View />
+                        <Divider />
+                        <View />
+                        {this.state.khelToAdd.length > 0
+                          ?
+                          this.state.khelToAdd.map((item, index) => (
+                            <View style={{padding: 10}}>
+                                <Title>{item.name}</Title>
+                                <View style={styles.rowContainer}>
+                                  <Caption>{item.category}</Caption>
+                                  <Button compact mode="contained" icon="minus" onPress={() => this.removeList(item)}></Button>
+                                </View>
+                            </View>
+                          ))
+                          : (
+                            <View>
+                              <Title>There are no items to add!</Title>
+                            </View>
+                        )}
+                      </View>
+                      )}
+                      {!this.state.listExists && (
+                        <View style={{justifyContent: "center"}}>
+                          <Title>There are no items to add!</Title>
+                        </View>
+                      )}
+                      <View style={styles.rowButtonContainer}>
+                        <Button compact onPress={() => this.setState({visible: false})}>Close List</Button>
+                        <Button compact mode="contained" disabled={!this.state.khelToAdd.length > 0} onPress={() => this.addToList()}>Add to List</Button>
+                      </View>
+                      </ScrollView>
+                    </View>
+                  </Modal>
+                </Portal>
+                    <Surface style={[styles.surfaceContainer, { padding: 20 }]}>
+                      <View style={{justifyContent: "center", padding: 10}}>
+                        <Button mode="contained" onPress={() => this.props.navigation.navigate("New")}>Make New List </Button>
+                        <View style={styles.spacer}></View>
+                        <Button onPress={() => this.setState({visible: true})}>Open List</Button>
+                      </View>
+                      <View style={styles.spacer}></View>
+                      <Text>Filter your options here:</Text>
+                      <TextInput
+                        mode="outlined"
+                        label="Search for khel"
+                        placeholder="Enter search here"
+                        value={this.state.search}
+                        onChangeText={text => this.setState({search: text}, () => this.searchStr())}
+                      />
+                    <View style={styles.spacer}></View>
+                      <View style={styles.rowContainer}>
+                        <Subheading style={styles.switchText}>Pursuit</Subheading>
+                        <Switch
+                          value={this.state.pursuit}
+                          onValueChange={(isChecked) =>
+                            this.setState({pursuit: isChecked}, () => this.updateSearch())
+                        }/>
+                      </View>
+                      <View style={styles.rowContainer}>
+                        <Subheading style={styles.switchText}>Individual</Subheading>
+                        <Switch
+                          value={this.state.individual}
+                          onValueChange={(isChecked) =>
+                            this.setState({individual: isChecked}, () => this.updateSearch())
+                        }/>
+                      </View>
+                      <View style={styles.rowContainer}>
+                        <Subheading style={styles.switchText}>Mandal</Subheading>
+                        <Switch
+                          value={this.state.mandal}
+                          onValueChange={(isChecked) =>
+                            this.setState({mandal: isChecked}, () => this.updateSearch())
+                        }/>
+                      </View>
+                      <View style={styles.rowContainer}>
+                        <Subheading style={styles.switchText}>Team</Subheading>
+                        <Switch
+                          value={this.state.team}
+                          onValueChange={(isChecked) =>
+                            this.setState({team: isChecked}, () => this.updateSearch())
+                        }/>
+                      </View>
+                      <View style={styles.rowContainer}>
+                        <Subheading style={styles.switchText}>Sitting down</Subheading>
+                        <Switch
+                          value={this.state.sit}
+                          onValueChange={(isChecked) =>
+                            this.setState({sit: isChecked}, () => this.updateSearch())
+                        }/>
+                      </View>
+                      <View style={styles.rowContainer}>
+                        <Subheading style={styles.switchText}>Dandh</Subheading>
+                        <Switch
+                          value={this.state.dand}
+                          onValueChange={(isChecked) =>
+                            this.setState({dand: isChecked}, () => this.updateSearch())
+                        }/>
+                      </View>
+                      <View style={styles.rowContainer}>
+                        <Subheading style={styles.switchText}>E-Khel</Subheading>
+                        <Switch
+                          value={this.state.ekhel}
+                          onValueChange={(isChecked) =>
+                            this.setState({ekhel: isChecked}, () => this.updateSearch())
+                        }/>
+                      </View>
+                    </Surface>
+                    <View style={styles.spacer}></View>
+                  </View>
+                }
             onRefresh={() => this.refreshControl()}
             refreshing={this.state.refreshing}
             renderItem = {({item, index}) => (

@@ -4,7 +4,7 @@
     "slug": "khel-app-android",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/khel_icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -26,7 +26,10 @@
     },
     "android": {
       "package": "com.hss.khelappandroid",
-      "versionCode": 1
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/khel_icon.png"
+      }
     }
   }
 }
