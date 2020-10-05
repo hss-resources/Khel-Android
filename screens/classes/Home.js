@@ -1,6 +1,6 @@
 import React from "react";
-import { StyleSheet, View, FlatList, ScrollView, AsyncStorage } from "react-native";
-import { Button, Card, ToggleButton, Switch, TextInput, Text, Dialog, Portal, Modal, Checkbox, ActivityIndicator, Colors, Surface, Title, Subheading, List, Caption, Divider } from "react-native-paper";
+import { StyleSheet, View, Animated, FlatList, ScrollView, AsyncStorage, Share } from "react-native";
+import { Button, Card, ToggleButton, Switch, TextInput, Text, Dialog, Portal, Modal, Checkbox, ActivityIndicator, Colors, Surface, Title, Subheading, List, Caption, Divider, IconButton } from "react-native-paper";
 import styles from "../../assets/styles/styles";
 
 import khel from "../../assets/khel.json";
@@ -25,7 +25,11 @@ export default class Home extends React.Component {
       visible: false,
       isLoading: false,
       refreshing: false,
-      listExists: false
+      listExists: false,
+      expanded: false,
+      height: 0,
+      expandableHeight: 0,
+      animation: new Animated.Value(0)
     }
   }
 
@@ -160,13 +164,12 @@ export default class Home extends React.Component {
         const array = this.state.searchData.filter(
           (item) => item.name.includes(this.state.search)
         );
-
         this.state.searchData.forEach(item => console.log(item.name));
         this.setState({
           searchData: array
         });
-      }
     }
+  }
 
   async addToList() {
       // var indexes = [];
@@ -204,10 +207,9 @@ export default class Home extends React.Component {
       let list = this.state.list;
       const amendedList = list.khel.concat(this.state.khelToAdd);
       list.khel = amendedList;
-      this.setState({list: list, visible: false}, () => this.props.navigation.navigate("ListInfo", {
-        item: list
-      }))
-
+      console.log("khel", list.khel);
+      this.setState({list: list, visible: false})
+      this.onShare();
   }
 
   removeList(item) {
@@ -295,6 +297,21 @@ export default class Home extends React.Component {
     this.setState({refreshing: false});
   }
 
+  async onShare() {
+    console.log("list", this.state.list)
+    var string = this.state.list.khel
+  .map(item => item.name + " (" + item.category + ")\r\n")
+                                     .reduce((acc, cur, index, data) => acc + (index+1) + ": " + cur, this.state.list.name+":\r\n");
+    try {
+      const result = await Share.share({
+        message: string
+      });
+      this.setState({list: [], listExists: false});
+    } catch(err) {
+      alert(err)
+    }
+  }
+
 
   render() {
     if (this.state.isLoading) {
@@ -311,14 +328,14 @@ export default class Home extends React.Component {
             data={this.state.searchData}
             ListHeaderComponent={
               <View>
-                    <Portal>
-                    <Modal
-                      visible={this.state.visible}
-                      dismissable={true}
-                      transparent={false}
-                      onDismiss={() => this.setState({visible: false})}
-                      onRequestClose={() => this.setState({visible: false})}
-                    >
+                <Portal>
+                  <Modal
+                    visible={this.state.visible}
+                    dismissable={true}
+                    transparent={false}
+                    onDismiss={() => this.setState({visible: false})}
+                    onRequestClose={() => this.setState({visible: false})}
+                  >
                     <View style={{backgroundColor: "white", padding: 10, height: 400}}>
                       <ScrollView>
                       {this.state.listExists && (
@@ -350,26 +367,38 @@ export default class Home extends React.Component {
                         )}
                       </View>
                       )}
-                      {!this.state.listExists && (
-                        <View style={{justifyContent: "center"}}>
-                          <Title>There are no items to add!</Title>
-                        </View>
-                      )}
                       <View style={styles.rowButtonContainer}>
                         <Button compact onPress={() => this.setState({visible: false})}>Close List</Button>
-                        <Button compact mode="contained" disabled={!this.state.khelToAdd.length > 0} onPress={() => this.addToList()}>Add to List</Button>
+                        <Button compact mode="contained" disabled={!this.state.khelToAdd.length > 0} onPress={() => this.addToList()}>Share List</Button>
                       </View>
                       </ScrollView>
                     </View>
                   </Modal>
                 </Portal>
-                    <Surface style={[styles.surfaceContainer, { padding: 20 }]}>
-                      <View style={{justifyContent: "center", padding: 10}}>
-                        <Button mode="contained" onPress={() => this.props.navigation.navigate("New")}>Make New List </Button>
-                        <View style={styles.spacer}></View>
-                        <Button onPress={() => this.setState({visible: true})}>Open List</Button>
-                      </View>
-                      <View style={styles.spacer}></View>
+
+                <Surface style={[styles.surfaceContainer, { padding: 20 }]}>
+                  <View style={{justifyContent: "center", padding: 10}}>
+                    <Button mode="contained" onPress={() => this.props.navigation.navigate("New")}>Make New List</Button>
+                    <View style={styles.spacer}></View>
+                    {this.state.listExists && (
+                      <Button onPress={() => this.setState({visible: true})}>Open List</Button>
+                    )}
+                  </View>
+                  <View style={styles.spacer}></View>
+                  <View style={styles.rowButtonContainer}>
+                    <Title>Options:</Title>
+                    <IconButton
+                      icon="menu-down-outline"
+                      onPress={() => this.setState({expanded: true})}
+                    />
+                  </View>
+                  <Portal>
+                    <Modal
+                      visible={this.state.expanded}
+                      onDismiss={() => this.setState({expanded: false})}
+                      dismissable={true}
+                    >
+                    <View style={{backgroundColor: "white", justifyContent: "center", padding: 10, margin: 10}}>
                       <Text>Filter your options here:</Text>
                       <TextInput
                         mode="outlined"
@@ -378,15 +407,16 @@ export default class Home extends React.Component {
                         value={this.state.search}
                         onChangeText={text => this.setState({search: text}, () => this.searchStr())}
                       />
-                    <View style={styles.spacer}></View>
+                      <View style={styles.spacer}></View>
                       <View style={styles.rowContainer}>
                         <Subheading style={styles.switchText}>Pursuit</Subheading>
-                        <Switch
-                          value={this.state.pursuit}
-                          onValueChange={(isChecked) =>
-                            this.setState({pursuit: isChecked}, () => this.updateSearch())
-                        }/>
+                          <Switch
+                            value={this.state.pursuit}
+                            onValueChange={(isChecked) =>
+                              this.setState({pursuit: isChecked}, () => this.updateSearch())
+                          }/>
                       </View>
+                      <View style={styles.spacer}></View>
                       <View style={styles.rowContainer}>
                         <Subheading style={styles.switchText}>Individual</Subheading>
                         <Switch
@@ -395,6 +425,7 @@ export default class Home extends React.Component {
                             this.setState({individual: isChecked}, () => this.updateSearch())
                         }/>
                       </View>
+                      <View style={styles.spacer}></View>
                       <View style={styles.rowContainer}>
                         <Subheading style={styles.switchText}>Mandal</Subheading>
                         <Switch
@@ -403,6 +434,7 @@ export default class Home extends React.Component {
                             this.setState({mandal: isChecked}, () => this.updateSearch())
                         }/>
                       </View>
+                      <View style={styles.spacer}></View>
                       <View style={styles.rowContainer}>
                         <Subheading style={styles.switchText}>Team</Subheading>
                         <Switch
@@ -411,6 +443,7 @@ export default class Home extends React.Component {
                             this.setState({team: isChecked}, () => this.updateSearch())
                         }/>
                       </View>
+                      <View style={styles.spacer}></View>
                       <View style={styles.rowContainer}>
                         <Subheading style={styles.switchText}>Sitting down</Subheading>
                         <Switch
@@ -419,14 +452,16 @@ export default class Home extends React.Component {
                             this.setState({sit: isChecked}, () => this.updateSearch())
                         }/>
                       </View>
+                      <View style={styles.spacer}></View>
                       <View style={styles.rowContainer}>
-                        <Subheading style={styles.switchText}>Dandh</Subheading>
+                        <Subheading style={styles.switchText}>Dand</Subheading>
                         <Switch
                           value={this.state.dand}
                           onValueChange={(isChecked) =>
                             this.setState({dand: isChecked}, () => this.updateSearch())
                         }/>
                       </View>
+                      <View style={styles.spacer}></View>
                       <View style={styles.rowContainer}>
                         <Subheading style={styles.switchText}>E-Khel</Subheading>
                         <Switch
@@ -435,10 +470,16 @@ export default class Home extends React.Component {
                             this.setState({ekhel: isChecked}, () => this.updateSearch())
                         }/>
                       </View>
-                    </Surface>
-                    <View style={styles.spacer}></View>
-                  </View>
-                }
+                      <View style={styles.spacer}></View>
+                      <View style={styles.spacer}></View>
+                    </View>
+                    </Modal>
+                  </Portal>
+
+                </Surface>
+                <View style={styles.spacer}></View>
+            </View>
+            }
             onRefresh={() => this.refreshControl()}
             refreshing={this.state.refreshing}
             renderItem = {({item, index}) => (

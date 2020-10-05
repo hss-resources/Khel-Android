@@ -14,8 +14,8 @@ export default function KhelTabNavigator() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === "Home") {
-            iconName = focused ? 'home' : 'home-outline'
-          } else if (route.name === 'List') {
+            iconName = focused ? 'cards' : 'cards-outline'
+          } else if (route.name === '') {
             iconName = focused ? 'cards' : 'cards-outline'
           } else if (route.name === 'About'){
             iconName = focused ? 'cogs' : 'cogs'

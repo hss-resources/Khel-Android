@@ -22,13 +22,14 @@ export default class ListInfo extends React.Component {
 
   remove(item) {
     const list = this.state.data.khel.filter(x => x.name != item.name);
+    let categories = this.props.route.params.item.categories;
     if (list.findIndex(i => i.category == item.category) == -1) {
-      let categories = list.categories.filter(i => i != item.category);
-      list.categories = categories;
+      categories = this.props.route.params.item.categories.filter(i => i != item.category);
     }
     console.log(list);
     const editedData = this.state.data;
     editedData.khel = list;
+    editedData.categories = categories;
     this.setState({data: editedData});
   }
 
@@ -142,7 +143,7 @@ export default class ListInfo extends React.Component {
 
 async onShare() {
   var string = this.state.data.khel.map(item => item.name + " (" + item.category + ")\r\n")
-                                   .reduce((acc, cur, index, data) => acc + cur, this.state.data.name+":\r\n");
+                                   .reduce((acc, cur, index, data) => acc + (index+1) + ": " + cur, this.state.data.name+":\r\n");
   try {
     const result = await Share.share({
       message: string

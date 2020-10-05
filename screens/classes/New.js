@@ -95,8 +95,8 @@ export default class New extends React.Component {
     if (limit != 0) {
       array = array.slice(0, limit);
     }
-    const categories = array.filter((item, index) => array.indexOf(item) == index);
-    console.log("array", criteria);
+    const categories = array.map(item => item.category).filter((item, index, arr) => arr.indexOf(item) == index);
+    console.log("array", categories);
     const list = {
       name: this.state.name,
       khel: array,
