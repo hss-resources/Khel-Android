@@ -386,9 +386,10 @@ export default class Home extends React.Component {
                   </View>
                   <View style={styles.spacer}></View>
                   <View style={styles.rowButtonContainer}>
-                    <Title>Options:</Title>
+                    <Subheading style={{marginTop: 12}}>Filter your options here!</Subheading>
                     <IconButton
-                      icon="menu-down-outline"
+                      icon="apps"
+                      animated={true}
                       onPress={() => this.setState({expanded: true})}
                     />
                   </View>
